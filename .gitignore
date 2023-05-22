@@ -1,0 +1,5 @@
+# IDE-specific files
+.buildconfig
+
+# Build output directories
+bin/
