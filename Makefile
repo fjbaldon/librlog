@@ -14,7 +14,7 @@ $(BIN_DIR)/$(BIN_NAME): Makefile $(SRC_DIR)/main.c | $(BIN_DIR)
 	$(CC) -o $@ $(WARNINGS) $(DEBUG) $(OPTIMIZE) $(SRC_DIR)/main.c
 
 clean:
-	rm -f LibrLog
+	rm -f $(BIN_DIR)/$(BIN_NAME)
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
@@ -26,4 +26,5 @@ install:
 # Builder uses this target to run your application.
 run: $(BIN_DIR)/$(BIN_NAME)
 	./$(BIN_DIR)/$(BIN_NAME)
+
  
