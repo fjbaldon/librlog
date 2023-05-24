@@ -18,8 +18,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "utils.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +27,7 @@
 #define MAX_FIELD_LENGTH 256
 #define MAX_NUM_FIELDS 10
 #define MAX_BOOKS 1000
+#define PROG_VERSION "librlog 0.1-a"
 
 typedef struct {
   char title[MAX_FIELD_LENGTH];
@@ -44,7 +43,7 @@ typedef struct {
 } Book;
 
 int
-write_catalog (Book book)
+update_catalog (Book book)
 {
   FILE *fp;
 
@@ -149,7 +148,7 @@ get_book_info (Book *book)
 }
 
 void
-print_info (const Book book)
+print_book_info (const Book book)
 {
   printf("Title:            %s\n", book.title);
   printf("Author:           %s\n", book.author);
@@ -253,9 +252,34 @@ load_catalog (Book *books)
 }
 
 void
-prog_ver (void)
+print_prog_warranty (void)
 {
-  puts ("librlog 0.1-a");
+  puts ("");
+  puts (PROG_VERSION);
+  puts ("Copyright 2023 Francis John Baldon\n");
+
+  puts ("  This program is free software; you can redistribute it and/or modify");
+  puts ("  it under the terms of the GNU General Public License as published by");
+  puts ("  the Free Software Foundation; either version 3 of the License , or");
+  puts ("  (at your option) any later version.\n");
+
+  puts ("  This program is distributed in the hope that it will be useful,");
+  puts ("  but WITHOUT ANY WARRANTY; without even the implied warranty of");
+  puts ("  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
+  puts ("  GNU General Public License for more details.\n");
+
+  puts ("  You should have received a copy of the GNU General Public License");
+  puts ("  along with this program. If not, write ton\n");
+
+  puts ("    The Free Software Foundation, Inc.");
+  puts ("    51 Franklin Street, Fifth Floor");
+  puts ("    Boston, MA 02110-1335  USA\n");
+}
+
+void
+print_prog_info (void)
+{
+  puts (PROG_VERSION);
   puts ("Copyright 2023 Francis John Baldon");
   puts ("This is free software with ABSOLUTELY NO WARRANTY.");
   puts ("For help type 'h'.");
@@ -274,7 +298,7 @@ run_program (void)
     return 1;
   }
 
-  prog_ver ();
+  print_prog_info ();
   num_books = load_catalog (books);
   while (1) {
 
@@ -292,39 +316,41 @@ run_program (void)
         add_book (books, book, num_books);
         break;
       case 'b':
-        puts ("Feature not yet implemented.");
+        /* TODO */
         break;
       case 'c':
         num_books = load_catalog (books);
         puts ("Library catalog loaded successfully.");
         break;
       case 'f':
-        puts ("Feature not yet implemented.");
+        /* TODO */
         break;
       case 'h':
-        puts ("Type [?]: [a]dd_book, [b]orrow_book, [f]ind_book, load_[c]atalog.");
-        puts ("          [l]ist_books, [p]rint_info, [v]erify_user");
-        puts ("          [h]elp, [q]uit [w]rite_catalog.");
+        puts ("Type [?]: [a]dd_book, [b]orrow_book, [f]ind_book, [p]rint_book_info");
+        puts ("          [l]ist_books, load_[c]atalog, [v]erify_user, [u]pdate_catalog");
+        puts ("          [h]elp, [q]uit, [w]arranty");
         break;
       case 'l':
-        for (i = 1; i < num_books; ++i)
-          print_info (books[i]);
+        for (i = 1; i < num_books; i++)
+          print_book_info (books[i]);
         break;
       case 'p':
-        print_info (book);
-        puts ("Feature not yet implemented.");
+        print_book_info (book);
         break;
       case 'q':
         puts ("Exited.");
         return -1;
       case 'r':
-        puts ("Feature not yet implemented.");
+        /* TODO */
+        break;
+      case 'u':
+        update_catalog (book);
         break;
       case 'v':
-        puts ("Feature not yet implemented.");
+        /* TODO */
         break;
       case 'w':
-        write_catalog (book);
+        print_prog_warranty ();
         break;
       default:
         fprintf (stderr, "Error: '%c': %s\n", c, "invalid input. Type 'h' for help.");
@@ -343,3 +369,4 @@ main (int argc,
   run_program ();
   return EXIT_SUCCESS;
 }
+
