@@ -26,5 +26,4 @@ install:
 # Builder uses this target to run your application.
 run: $(BIN_DIR)/$(BIN_NAME)
 	./$(BIN_DIR)/$(BIN_NAME)
-
  
