@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* macros */
 #define FILE_NAME "data/library_catalog.csv"
 #define PROG_VERSION "librlog 0.1-a"
 #define MAX_LINE_LENGTH 2560
@@ -42,8 +43,33 @@ typedef struct {
   char return_date[MAX_FIELD_LENGTH];
 } Book;
 
+/* enums */
+enum {
+  TITLE,
+  AUTHOR,
+  GENRE,
+  PUBLISHER,
+  PUBLICATION_YEAR,
+};
+
+/* function declarations */
+int save_catalog (void);
+int find_book (int field, const char *strtofind, int starting_i);
+int add_book_books (Book book);
+int get_str_cleanly (char buffer[], size_t size);
+int get_book_info (Book *book);
+void print_book_info (const Book book);
+int load_catalog (void);
+void print_prog_warranty (void);
+void print_prog_info (void);
+
+/* variables */
+static Book *books;
+static int num_books;
+
+/* function implementations */
 int
-save_catalog (Book *books, int num_books)
+save_catalog (void)
 {
   FILE *fp;
   int i;
@@ -54,10 +80,10 @@ save_catalog (Book *books, int num_books)
     return -1;
   }
 
-  // Write header row
+  /* Write header row */
   fprintf(fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
 
-  // Write book data
+  /* Write book data */
   for (i = 1; i < num_books; i++) {
     fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
             books[i].title,
@@ -77,21 +103,53 @@ save_catalog (Book *books, int num_books)
 }
 
 int
-find_book (Book* books, int num_books, const char title[])
+find_book (int field,
+           const char *strtofind,
+           int starting_i)
 {
   int i;
 
-  for (i = 0; i < num_books; i++)
-    if (strcmp (books[i].title, title) == 0)
-      /* return index of matching book */
-      return i;
+  if (field < TITLE && field > PUBLICATION_YEAR) {
+    fprintf (stderr, "Error: %s.\n", "invalid field passed");
+    return -1;
+  }
+
+  for (i = starting_i; i < num_books; i++) {
+    switch (field)
+      {
+      case TITLE:
+        if (strcmp (books[i].title, strtofind) == 0)
+          /* return index of matching book */
+          return i;
+        break;
+      case AUTHOR:
+        if (strcmp (books[i].author, strtofind) == 0)
+          return i;
+        break;
+      case GENRE:
+        if (strcmp (books[i].genre, strtofind) == 0)
+          return i;
+        break;
+      case PUBLISHER:
+        if (strcmp (books[i].publisher, strtofind) == 0)
+          return i;
+        break;
+      case PUBLICATION_YEAR:
+        if (strcmp (books[i].publication_year, strtofind) == 0)
+          return i;
+        break;
+      default:
+        fprintf (stderr, "Error: %s.\n", "this case should never execute");
+        return -1;
+      }
+  }
 
   /* book not found */
   return 0;
 }
 
 int
-add_book_books (Book *books, Book book, int num_books)
+add_book_books (Book book)
 {
   /* check if the books array is full */
   if (num_books >= MAX_BOOKS) {
@@ -183,13 +241,13 @@ get_book_info (Book *book)
   book->genre[MAX_FIELD_LENGTH - 1] = '\0';
 
   // initialize the remaining fields to "-" strings
-  strncpy (book->checked_out_by, "-", MAX_FIELD_LENGTH - 1);
+  strncpy (book->checked_out_by, "", MAX_FIELD_LENGTH - 1);
   book->checked_out_by[MAX_FIELD_LENGTH - 1] = '\0';
 
-  strncpy (book->checked_out_date, "-", MAX_FIELD_LENGTH - 1);
+  strncpy (book->checked_out_date, "", MAX_FIELD_LENGTH - 1);
   book->checked_out_date[MAX_FIELD_LENGTH - 1] = '\0';
 
-  strncpy (book->return_date, "-", MAX_FIELD_LENGTH - 1);
+  strncpy (book->return_date, "", MAX_FIELD_LENGTH - 1);
   book->return_date[MAX_FIELD_LENGTH - 1] = '\0';
 
   return 0;
@@ -211,7 +269,7 @@ print_book_info (const Book book)
 }
 
 int
-load_catalog (Book *books)
+load_catalog (void)
 {
   FILE *fp;
   char line[MAX_LINE_LENGTH];
@@ -347,9 +405,9 @@ int
 main (int argc,
       char *argv[])
 {
-  Book *books, book;
+  Book book;
   char c, buffer[MAX_FIELD_LENGTH];
-  int d, i, ret, num_books;
+  int d, i, ret;
 
   books = (Book *) malloc (sizeof (Book) * MAX_BOOKS);
   if (books == NULL) {
@@ -358,9 +416,10 @@ main (int argc,
   }
 
   print_prog_info ();
-  if ((num_books = load_catalog (books)) == -1)
+  if ((num_books = load_catalog ()) == -1)
     goto quit;
 
+menu:
   while (1) {
 
     printf (">>> ");
@@ -375,7 +434,7 @@ main (int argc,
       case 'a':
         if (get_book_info (&book) == -1)
           goto quit;
-        if (add_book_books (books, book, num_books) == -1)
+        if (add_book_books (book) == -1)
           continue;
         num_books++;
         break;
@@ -385,26 +444,77 @@ main (int argc,
       case 'f':
         printf ("Enter the book title:      ");
         get_str_cleanly (buffer, sizeof (buffer));
-        if ((ret = find_book (books, num_books, buffer)) != 0)
+        if ((ret = find_book (TITLE, buffer, 1)) > 0)
           print_book_info (books[ret]);
         else
           puts ("Book not found.");
         break;
       case 'h':
-        puts ("Type [?]: [a]dd_book, [b]orrow_book, [f]ind_book, [p]rint_book_info");
-        puts ("          [l]ist_books, [v]erify_user");
+        puts ("Type [?]: [a]dd_book, [b]orrow_book, [f]ind_book");
+        puts ("          [l]ist_books, [s]ort_books, [v]erify_user");
         puts ("          [h]elp, [q]uit, [w]arranty");
         break;
       case 'l':
         for (i = 1; i < num_books; i++)
           print_book_info (books[i]);
         break;
-      case 'p':
-        /* TODO */
-        break;
       case 'q':
         puts ("Exited.");
         goto quit;
+      case 's':
+        while (1) {
+
+          printf ("Type [?]: [a]uthor, [g]enre, [p]ublisher, publication_[y]ear, [b]ack.\n");
+          printf (">>> ");
+          if (scanf (" %c", &c) == EOF) {
+            puts ("EOF reached.");
+            goto quit;
+          }
+          while ((d = getchar ()) != '\n' && d != EOF);
+
+          switch (c)
+            {
+            case 'a':
+              printf ("Enter book author: ");
+              get_str_cleanly (buffer, sizeof (buffer));
+              if ((ret = find_book (AUTHOR, buffer, 1)) > 0)
+                print_book_info (books[ret]);
+              else
+                puts ("Book not found.");
+              break;
+            case 'b':
+              goto menu;
+              break;
+            case 'g':
+              printf ("Enter book genre: ");
+              get_str_cleanly (buffer, sizeof (buffer));
+              if ((ret = find_book (GENRE, buffer, 1)) > 0)
+                print_book_info (books[ret]);
+              else
+                puts ("Book not found.");
+              break;
+            case 'p':
+              printf ("Enter book publisher: ");
+              get_str_cleanly (buffer, sizeof (buffer));
+              if ((ret = find_book (PUBLISHER, buffer, 1)) > 0)
+                print_book_info (books[ret]);
+              else
+                puts ("Book not found.");
+              break;
+            case 'y':
+              printf ("Enter publication year: ");
+              get_str_cleanly (buffer, sizeof (buffer));
+              if ((ret = find_book (PUBLICATION_YEAR, buffer, 1)) > 0)
+                print_book_info (books[ret]);
+              else
+                puts ("Book not found.");
+              break;
+            default:
+              fprintf (stderr, "Error: '%c': %s\n", c, "invalid input");
+              continue;
+            }
+          }
+        break;
       case 'r':
         /* TODO */
         break;
@@ -415,13 +525,13 @@ main (int argc,
         print_prog_warranty ();
         break;
       default:
-        fprintf (stderr, "Error: '%c': %s\n", c, "invalid input. Type 'h' for help.");
+        fprintf (stderr, "Error: '%c': %s\n", c, "invalid input. Type 'h' for help");
         continue;
       }
   }
 
 quit:
-  save_catalog (books, num_books);
+  save_catalog ();
   free (books);
   return EXIT_SUCCESS;
 }
