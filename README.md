@@ -124,7 +124,13 @@ If you would like to contribute to any of these issues, please comment on the is
 
 ## Credits
 
-- Francis John Baldon (@fjbaldon): Developed the initial project concept and provided guidance throughout the development process.
+- Francis John Baldon    (francisjohnt.baldon@bisu.edu.ph): Lead Developer
+- Jaycho Carido          (jaycho.carido@bisu.edu.ph): Contributer
+- Carl James Lopez       (carljames.lopez@bisu.edu.ph): Contributer
+- Kyte Aleszandrah Orion (kytealeszandrah.orion@bisu.edu.ph): Contributer
+- Julie Mae Catigum      (juliemae.catigum@bisu.edu.ph): Contributer
+- Regine Ilka Ofamen     (regineilka.ofame@bisu.edu.ph): Contributer
+- Reign Alger Ofamen     (reignalgerl.ofamen@bisu.edu.ph): Contributer
 
 Finally, we would like to thank our users and anyone else who has supported the project in any way. We appreciate your feedback and contributions, and we will continue to work hard to make this project the best it can be.
 

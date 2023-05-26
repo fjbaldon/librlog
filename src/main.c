@@ -56,7 +56,7 @@ enum {
 int save_catalog (void);
 int find_book (int field, const char *strtofind, int starting_i);
 int add_book_books (Book book);
-int get_str_cleanly (char buffer[], size_t size);
+int get_str_cleanly (char *dest, size_t size);
 int get_book_info (Book *book);
 void print_book_info (const Book book);
 int load_catalog (void);
@@ -174,21 +174,21 @@ add_book_books (Book book)
 }
 
 int
-get_str_cleanly (char buffer[], size_t size)
+get_str_cleanly (char *dest, size_t size)
 {
   int d;
 
-  if (!fgets (buffer, size, stdin)) {
+  if (!fgets (dest, size, stdin)) {
     puts ("EOF reached.");
     return -1;
   }
 
   /* discard unread characters if there's any */
-  if (strlen (buffer) == size - 1 && buffer[size - 2] != '\n')
+  if (strlen (dest) == size - 1 && dest[size - 2] != '\n')
     while ((d = getchar ()) != '\n' && d != EOF);
 
   /* remove trailing newline */
-  buffer[strcspn(buffer, "\n")] = '\0';
+  dest[strcspn(dest, "\n")] = '\0';
 
   return 0;
 }
@@ -240,7 +240,7 @@ get_book_info (Book *book)
   strncpy (book->genre, buffer, MAX_FIELD_LENGTH - 1);
   book->genre[MAX_FIELD_LENGTH - 1] = '\0';
 
-  // initialize the remaining fields to "-" strings
+  /* initialize the remaining fields to "-" strings */
   strncpy (book->checked_out_by, "", MAX_FIELD_LENGTH - 1);
   book->checked_out_by[MAX_FIELD_LENGTH - 1] = '\0';
 
@@ -472,15 +472,14 @@ menu:
           }
           while ((d = getchar ()) != '\n' && d != EOF);
 
+          ret = 0;
           switch (c)
             {
             case 'a':
               printf ("Enter book author: ");
               get_str_cleanly (buffer, sizeof (buffer));
-              if ((ret = find_book (AUTHOR, buffer, 1)) > 0)
+              while ((ret = find_book (GENRE, buffer, ++ret)) > 0)
                 print_book_info (books[ret]);
-              else
-                puts ("Book not found.");
               break;
             case 'b':
               goto menu;
@@ -488,26 +487,20 @@ menu:
             case 'g':
               printf ("Enter book genre: ");
               get_str_cleanly (buffer, sizeof (buffer));
-              if ((ret = find_book (GENRE, buffer, 1)) > 0)
+              while ((ret = find_book (GENRE, buffer, ++ret)) > 0)
                 print_book_info (books[ret]);
-              else
-                puts ("Book not found.");
               break;
             case 'p':
               printf ("Enter book publisher: ");
               get_str_cleanly (buffer, sizeof (buffer));
-              if ((ret = find_book (PUBLISHER, buffer, 1)) > 0)
+              while ((ret = find_book (GENRE, buffer, ++ret)) > 0)
                 print_book_info (books[ret]);
-              else
-                puts ("Book not found.");
               break;
             case 'y':
               printf ("Enter publication year: ");
               get_str_cleanly (buffer, sizeof (buffer));
-              if ((ret = find_book (PUBLICATION_YEAR, buffer, 1)) > 0)
+              while ((ret = find_book (GENRE, buffer, ++ret)) > 0)
                 print_book_info (books[ret]);
-              else
-                puts ("Book not found.");
               break;
             default:
               fprintf (stderr, "Error: '%c': %s\n", c, "invalid input");

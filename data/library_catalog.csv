@@ -1,9 +1,8 @@
 Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date
 The Great Gatsby,F. Scott Fitzgerald,Scribner,1925,978-0743273565,001,Fiction,,,
-To Kill a Mockingbird,Harper Lee,J. B. Lippincott & Co1960,978-0446310789,002,Fiction,,,,
+To Kill a Mockingbird,Harper Lee,J. B. Lippincott & Co,1960,978-0446310789,002,Fiction,,,
 1984,George Orwell,Secker & Warburg,1949,978-0451524935,003,Fiction,,,
 Pride and Prejudice,Jane Austen,T. Egerton,1813,978-0486284736,004,Fiction,,,
-The Catcher in the Rye,J. D. Salinger,Little,Brown and Company,1951,978-0316769174,Fiction,,,
 The Hobbit,J. R. R. Tolkien,Allen & Unwin,1937,978-0547928227,006,Fantasy,,,
 The Lord of the Rings,J. R. R. Tolkien,Allen & Unwin,1954,978-0547928203,007,Fantasy,,,
 Harry Potter and the Philosopher's Stone,J. K. Rowling,Bloomsbury,1997,978-0747532743,008,Fantasy,,,
