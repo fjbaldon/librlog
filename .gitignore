@@ -1,5 +1,6 @@
 # IDE-specific files
 .buildconfig
+.idea
 
 # Build output directories
 bin/
