@@ -22,9 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* macros */
 #define FILE_NAME "data/library_catalog.csv"
-#define PROG_VERSION "librlog 0.1-a"
+#define PROG_VERSION "librlog 0.2"
 #define MAX_LINE_LENGTH 2560
 #define MAX_FIELD_LENGTH 256
 #define MAX_NUM_FIELDS 10
@@ -43,35 +42,109 @@ typedef struct {
   char return_date[MAX_FIELD_LENGTH];
 } Book;
 
-/* enums */
 enum {
-  ACCESS_NUMBER,
   TITLE,
   AUTHOR,
-  GENRE,
   PUBLISHER,
   PUBLICATION_YEAR,
+  ACCESS_NUMBER,
+  GENRE,
 };
 
-/* function declarations */
-int return_book (void);
-int borrow_book (void);
-int sort_books (void);
-int save_catalog (void);
-int search_book_books (int field, const char *strtofind, int starting_i);
-int add_book_books (Book book);
-int get_book_info (Book *book);
-void print_book_info (const Book book);
-int load_catalog (void);
-void print_prog_warranty (void);
-void print_prog_info (void);
-
-/* variables */
+/* Pointer to an array of Book objects */
 static Book *books;
+
+/* Stores the number of Book objects in the books array */
 static int num_books;
 
-/* function implementations */
-int
+/* Temporary storage for unread characters from the standard input stream */
+static int d;
+
+static int
+verify_user (void)
+{
+  const char stored_pass[] = "bisu";
+  char entered_pass[10];
+
+  printf ("Enter password: ");
+  if (fgets (entered_pass, 10, stdin) == NULL)
+    {
+      fprintf (stderr, "Error: %s.\n", "error reading from stdin");
+      return -1;
+    }
+
+  if (strchr (entered_pass, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+
+  entered_pass[strcspn (entered_pass, "\n")] = '\0';
+
+  if (!strcmp (stored_pass, entered_pass))
+    return 1;
+
+  return 0;
+}
+
+static int
+search_book_books (int         field,
+                   const char *strtofind,
+                   int         starting_i)
+{
+  int i;
+
+  if (field < TITLE ||
+      field > PUBLICATION_YEAR)
+    {
+      fprintf (stderr, "Error: %s.\n", "invalid field");
+      return -1;
+    }
+
+  for (i = starting_i; i < num_books; i++)
+    {
+      switch (field)
+        {
+        case TITLE:
+          if (strcmp (books[i].title, strtofind) == 0)
+            /* return index of matching book */
+            return i;
+          break;
+
+        case AUTHOR:
+          if (strcmp (books[i].author, strtofind) == 0)
+            /* return index of matching book */
+            return i;
+          break;
+
+        case PUBLISHER:
+          if (strcmp (books[i].publisher, strtofind) == 0)
+            return i;
+          break;
+
+        case PUBLICATION_YEAR:
+          if (strcmp (books[i].publication_year, strtofind) == 0)
+            return i;
+          break;
+
+        case ACCESS_NUMBER:
+          if (strcmp (books[i].accession_number, strtofind) == 0)
+            return i;
+          break;
+
+        case GENRE:
+          if (strcmp (books[i].genre, strtofind) == 0)
+            return i;
+          break;
+
+        default:
+          fprintf (stderr, "Error: %s.\n", "this case should never execute");
+          return -1;
+        }
+    }
+
+  /* book not found */
+  return 0;
+}
+
+static int
 return_book (void)
 {
   char accession_number[MAX_FIELD_LENGTH], return_date[MAX_FIELD_LENGTH];
@@ -85,16 +158,18 @@ return_book (void)
 
   /* Search for the book with the given accession number */
   ret = search_book_books (ACCESS_NUMBER, accession_number, 1);
-  if (ret == -1) {
-    puts ("Book not found.");
-    return -1;
-  }
+  if (ret == -1)
+    {
+      puts ("Book not found.");
+      return -1;
+    }
 
   /* Check if the book is already returned */
-  if (strcmp (books[ret].checked_out_by, "") == 0) {
-    puts ("Book is already returned.");
-    return -1;
-  }
+  if (strcmp (books[ret].checked_out_by, "") == 0)
+    {
+      puts ("Book is already returned.");
+      return -1;
+    }
 
   /* Get the return date */
   printf ("Enter return date: ");
@@ -158,88 +233,107 @@ borrow_book (void)
   return 0;
 }
 
-int
+static void
+print_book_info (const Book book)
+{
+  printf ("Title:            %s\n", book.title);
+  printf ("Author:           %s\n", book.author);
+  printf ("Publisher:        %s\n", book.publisher);
+  printf ("Publication Year: %s\n", book.publication_year);
+  printf ("ISBN:             %s\n", book.isbn);
+  printf ("Accession Number: %s\n", book.accession_number);
+  printf ("Genre:            %s\n", book.genre);
+  printf ("Checked Out By:   %s\n", book.checked_out_by);
+  printf ("Checked Out Date: %s\n", book.checked_out_date);
+  printf ("Return Date:      %s\n\n", book.return_date);
+}
+
+
+static int
 sort_books (void)
 {
   char c, buffer[MAX_FIELD_LENGTH];
-  int d, ret;
+  int d, ret = 0;
 
   printf ("Type [?]: [a]uthor, [g]enre, [p]ublisher, publication_[y]ear, [b]ack.\n");
   printf ("     [ ]: ");
-  if (scanf (" %c", &c) == EOF) {
-    puts ("EOF reached.");
-    return -1;
-  }
-  while ((d = getchar ()) != '\n' && d != EOF);
+  if (scanf (" %c", &c) == EOF)
+    {
+      puts ("EOF reached.");
+      return -1;
+    }
+  while ((d = getchar ()) != '\n' && d != EOF) {}
 
-  ret = 0;
   switch (c)
     {
-      case 'a':
-        printf ("Enter book author: ");
-        fgets (buffer, sizeof (buffer), stdin);
+    case 'a':
+      printf ("Enter book author: ");
+      fgets (buffer, sizeof (buffer), stdin);
 
-        /* discard unread characters if there's any */
-        if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
-          while ((d = getchar ()) != '\n' && d != EOF);
+      /* discard unread characters if there's any */
+      if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
+        while ((d = getchar ()) != '\n' && d != EOF);
 
-        /* remove trailing newline */
-        buffer[strcspn(buffer, "\n")] = '\0';
+      /* remove trailing newline */
+      buffer[strcspn(buffer, "\n")] = '\0';
 
-        while ((ret = search_book_books (AUTHOR, buffer, ++ret)) > 0)
-          print_book_info (books[ret]);
-        puts ("Done sorting.");
-        break;
-      case 'b':
-        return 0;
-      case 'g':
-        printf ("Enter book genre: ");
-        fgets (buffer, sizeof (buffer), stdin);
+      while ((ret = search_book_books (AUTHOR, buffer, ++ret)) > 0)
+        print_book_info (books[ret]);
+      puts ("Done sorting.");
+      break;
 
-        if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
-          while ((d = getchar ()) != '\n' && d != EOF);
+    case 'b':
+      return 0;
 
-        buffer[strcspn(buffer, "\n")] = '\0';
-        while ((ret = search_book_books (GENRE, buffer, ++ret)) > 0)
-          print_book_info (books[ret]);
-        puts ("Done sorting.");
-        break;
-      case 'p':
-        printf ("Enter book publisher: ");
-        fgets (buffer, sizeof (buffer), stdin);
+    case 'g':
+      printf ("Enter book genre: ");
+      fgets (buffer, sizeof (buffer), stdin);
 
-        if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
-          while ((d = getchar ()) != '\n' && d != EOF);
+      if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
+        while ((d = getchar ()) != '\n' && d != EOF);
 
-        buffer[strcspn(buffer, "\n")] = '\0';
-        while ((ret = search_book_books (PUBLISHER, buffer, ++ret)) > 0)
-          print_book_info (books[ret]);
-        puts ("Done sorting.");
-        break;
-      case 'y':
-        printf ("Enter publication year: ");
-        fgets (buffer, sizeof (buffer), stdin);
+      buffer[strcspn(buffer, "\n")] = '\0';
+      while ((ret = search_book_books (GENRE, buffer, ++ret)) > 0)
+        print_book_info (books[ret]);
+      break;
 
-        if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
-          while ((d = getchar ()) != '\n' && d != EOF);
+    case 'p':
+      printf ("Enter book publisher: ");
+      fgets (buffer, sizeof (buffer), stdin);
 
-        buffer[strcspn(buffer, "\n")] = '\0';
-        while ((ret = search_book_books (PUBLICATION_YEAR, buffer, ++ret)) > 0)
-          print_book_info (books[ret]);
-        puts ("Done sorting.");
-        break;
-      default:
-        fprintf (stderr, "Error: '%c': %s\n", c, "invalid input");
-        return 1;
+      if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
+        while ((d = getchar ()) != '\n' && d != EOF);
+
+      buffer[strcspn(buffer, "\n")] = '\0';
+      while ((ret = search_book_books (PUBLISHER, buffer, ++ret)) > 0)
+        print_book_info (books[ret]);
+      puts ("Done sorting.");
+      break;
+    case 'y':
+      printf ("Enter publication year: ");
+      fgets (buffer, sizeof (buffer), stdin);
+
+      if (strlen (buffer) == sizeof (buffer) - 1 && buffer[sizeof (buffer) - 1] != '\n')
+        while ((d = getchar ()) != '\n' && d != EOF);
+
+      buffer[strcspn(buffer, "\n")] = '\0';
+      while ((ret = search_book_books (PUBLICATION_YEAR, buffer, ++ret)) > 0)
+        print_book_info (books[ret]);
+      puts ("Done sorting.");
+      break;
+    default:
+      fprintf (stderr, "Error: '%c': %s\n", c, "invalid input");
+      return 1;
     }
 
+  puts ("Done sorting.");
   return 0;
 }
 
-int
+static int
 find_book (void)
 {
-  char  buffer[MAX_FIELD_LENGTH];
+  char buffer[MAX_FIELD_LENGTH];
   int d, ret;
 
   printf ("Enter the book title:      ");
@@ -259,99 +353,51 @@ find_book (void)
   return 0;
 }
 
-int
+static int
 save_catalog (void)
 {
   FILE *fp;
   int i;
 
   fp = fopen (FILE_NAME, "w");
-  if (fp == NULL) {
-    fprintf (stderr, "Error: '%s': %s.\n", FILE_NAME, "could not open file for writing");
-    return -1;
-  }
+  if (fp == NULL)
+    {
+      fprintf (stderr, "Error: '%s': %s.\n", FILE_NAME, "could not open file for writing");
+      return -1;
+    }
 
   /* Write header row */
-  fprintf(fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
+  fprintf (fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
 
   /* Write book data */
-  for (i = 1; i < num_books; i++) {
-    fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-            books[i].title,
-            books[i].author,
-            books[i].publisher,
-            books[i].publication_year,
-            books[i].isbn,
-            books[i].accession_number,
-            books[i].genre,
-            books[i].checked_out_by,
-            books[i].checked_out_date,
-            books[i].return_date);
-  }
+  for (i = 1; i < num_books; i++)
+    {
+      fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+              books[i].title,
+              books[i].author,
+              books[i].publisher,
+              books[i].publication_year,
+              books[i].isbn,
+              books[i].accession_number,
+              books[i].genre,
+              books[i].checked_out_by,
+              books[i].checked_out_date,
+              books[i].return_date);
+    }
 
   fclose(fp);
   return 0;
 }
 
-int
-search_book_books (int field,
-           const char *strtofind,
-           int starting_i)
-{
-  int i;
-
-  if (field < TITLE && field > PUBLICATION_YEAR) {
-    fprintf (stderr, "Error: %s.\n", "invalid field passed");
-    return -1;
-  }
-
-  for (i = starting_i; i < num_books; i++) {
-    switch (field)
-      {
-      case ACCESS_NUMBER:
-        if (strcmp (books[i].accession_number, strtofind) == 0)
-          /* return index of matching book */
-          return i;
-        break;
-      case TITLE:
-        if (strcmp (books[i].title, strtofind) == 0)
-          /* return index of matching book */
-          return i;
-        break;
-      case AUTHOR:
-        if (strcmp (books[i].author, strtofind) == 0)
-          return i;
-        break;
-      case GENRE:
-        if (strcmp (books[i].genre, strtofind) == 0)
-          return i;
-        break;
-      case PUBLISHER:
-        if (strcmp (books[i].publisher, strtofind) == 0)
-          return i;
-        break;
-      case PUBLICATION_YEAR:
-        if (strcmp (books[i].publication_year, strtofind) == 0)
-          return i;
-        break;
-      default:
-        fprintf (stderr, "Error: %s.\n", "this case should never execute");
-        return -1;
-      }
-  }
-
-  /* book not found */
-  return 0;
-}
-
-int
+static int
 add_book_books (Book book)
 {
   /* check if the books array is full */
-  if (num_books >= MAX_BOOKS) {
-    fprintf (stderr, "Error: %s.\n", "maximum number of books reached");
-    return -1;
-  }
+  if (num_books >= MAX_BOOKS)
+    {
+      fprintf (stderr, "Error: %s.\n", "maximum number of books reached");
+      return -1;
+    }
 
   /* copy the book information to the next available slot in the books array */
   memcpy (&books[num_books], &book, sizeof (Book));
@@ -455,121 +501,118 @@ get_book_info (Book *book)
   return 0;
 }
 
-void
-print_book_info (const Book book)
-{
-  printf ("Title:            %s\n", book.title);
-  printf ("Author:           %s\n", book.author);
-  printf ("Publisher:        %s\n", book.publisher);
-  printf ("Publication Year: %s\n", book.publication_year);
-  printf ("ISBN:             %s\n", book.isbn);
-  printf ("Accession Number: %s\n", book.accession_number);
-  printf ("Genre:            %s\n", book.genre);
-  printf ("Checked Out By:   %s\n", book.checked_out_by);
-  printf ("Checked Out Date: %s\n", book.checked_out_date);
-  printf ("Return Date:      %s\n\n", book.return_date);
-}
-
-int
+static int
 load_catalog (void)
 {
   FILE *fp;
   char line[MAX_LINE_LENGTH];
   char *field;
-  int num_books;
+  int num_books = 0;
 
   fp = fopen (FILE_NAME, "r");
-  if (fp == NULL) {
-    fprintf (stderr, "Error: '%s': %s.\n", FILE_NAME, "opening file");
-    return -1;
-  }
-
-  num_books = 0;
-  while (fgets (line, MAX_LINE_LENGTH, fp) != NULL) {
-    field = strtok (line, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].title, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].title[MAX_FIELD_LENGTH - 1] = '\0';
+  if (fp == NULL)
+    {
+      fprintf (stderr, "Error: '%s': %s.\n", FILE_NAME, "when opening file");
+      return -1;
     }
 
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].author, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].author[MAX_FIELD_LENGTH - 1] = '\0';
+  while (fgets (line, MAX_LINE_LENGTH, fp) != NULL)
+    {
+      field = strtok (line, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].title, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].title[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].author, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].author[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].publisher, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].publisher[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].publication_year, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].publication_year[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].isbn, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].isbn[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].accession_number, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].accession_number[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].genre, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].genre[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].checked_out_by, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].checked_out_by[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].checked_out_date, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].checked_out_date[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      field = strtok (NULL, ",");
+      if (field != NULL)
+        {
+          field[strcspn (field, "\n")] = '\0';
+          strncpy (books[num_books].return_date, field, MAX_FIELD_LENGTH - 1);
+          books[num_books].return_date[MAX_FIELD_LENGTH - 1] = '\0';
+        }
+
+      num_books++;
     }
 
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].publisher, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].publisher[MAX_FIELD_LENGTH - 1] = '\0';
+  if (ferror (fp))
+    {
+      fprintf (stderr, "Error: '%s': %s.\n", FILE_NAME, "reading file");
+      fclose (fp);
+      return -1;
     }
-
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].publication_year, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].publication_year[MAX_FIELD_LENGTH - 1] = '\0';
-    }
-
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].isbn, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].isbn[MAX_FIELD_LENGTH - 1] = '\0';
-    }
-
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].accession_number, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].accession_number[MAX_FIELD_LENGTH - 1] = '\0';
-    }
-
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].genre, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].genre[MAX_FIELD_LENGTH - 1] = '\0';
-    }
-
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].checked_out_by, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].checked_out_by[MAX_FIELD_LENGTH - 1] = '\0';
-    }
-
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].checked_out_date, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].checked_out_date[MAX_FIELD_LENGTH - 1] = '\0';
-    }
-
-    field = strtok (NULL, ",");
-    if (field != NULL) {
-      field[strcspn (field, "\n")] = '\0';
-      strncpy (books[num_books].return_date, field, MAX_FIELD_LENGTH - 1);
-      books[num_books].return_date[MAX_FIELD_LENGTH - 1] = '\0';
-    }
-
-    num_books++;
-  }
-
-  if (ferror (fp)) {
-    fprintf (stderr, "Error: '%s': %s.\n", FILE_NAME, "reading file");
-    fclose (fp);
-    return -1;
-  }
 
   fclose (fp);
   return num_books;
 }
 
-void
+static void
 print_prog_warranty (void)
 {
   puts ("");
@@ -594,7 +637,7 @@ print_prog_warranty (void)
   puts ("    Boston, MA 02110-1335  USA\n");
 }
 
-void
+static void
 print_prog_info (void)
 {
   puts (PROG_VERSION);
@@ -611,73 +654,83 @@ main (void)
   int d, i;
 
   books = (Book *) malloc (sizeof (Book) * MAX_BOOKS);
-  if (books == NULL) {
-    fprintf (stderr, "Error: %s.\n", "failed to allocate memory from malloc()");
-    return EXIT_FAILURE;
-  }
 
+  if (books == NULL)
+    {
+      fprintf (stderr, "Error: %s.\n", "failed to allocate memory from malloc()");
+      return EXIT_FAILURE;
+    }
+
+  while (!verify_user ()) {}
+  system ("clear");
   print_prog_info ();
 
   if ((num_books = load_catalog ()) == -1)
     goto quit;
 
-  while (1) {
-
-    printf (">>> ");
-    if (scanf (" %c", &c) == EOF) {
-      puts ("EOF reached.");
-      goto quit;
-    }
-    while ((d = getchar ()) != '\n' && d != EOF);
-
-    switch (c)
-      {
-      case 'a':
-        if (get_book_info (&book) == -1)
+  while (1)
+    {
+      printf (">>> ");
+      if (scanf (" %c", &c) == EOF)
+        {
+          puts ("EOF reached.");
           goto quit;
-        if (add_book_books (book) == -1)
-          continue;
-        num_books++;
-        break;
-      case 'b':
-        borrow_book ();
-        break;
-      case 'f':
-        find_book ();
-        break;
-      case 'h':
-        puts ("Type [?]: [a]dd_book, [b]orrow_book, [f]ind_book, [r]eturn_book");
-        puts ("          [l]ist_books, [s]ort_books, [v]erify_user");
-        puts ("          [h]elp, [q]uit, [w]arranty");
-        break;
-      case 'l':
-        for (i = 1; i < num_books; i++)
-          print_book_info (books[i]);
-        break;
-      case 'q':
-        puts ("Exited.");
-        goto quit;
-      case 's':
-        while (1)
-          if (sort_books () == 1)
+        }
+      while ((d = getchar ()) != '\n' && d != EOF) {}
+
+      switch (c)
+        {
+        case 'a':
+          if (get_book_info (&book) == -1)
+            goto quit;
+          if (add_book_books (book) == -1)
             continue;
-          else
-            break;
-        break;
-      case 'r':
-        return_book ();
-        break;
-      case 'v':
-        /* TODO */
-        break;
-      case 'w':
-        print_prog_warranty ();
-        break;
-      default:
-        fprintf (stderr, "Error: '%c': %s\n", c, "invalid input. Type 'h' for help");
-        continue;
-      }
-  }
+          num_books++;
+          break;
+
+        case 'b':
+          borrow_book ();
+          break;
+
+        case 'f':
+          find_book ();
+          break;
+
+        case 'h':
+          puts ("Type [?]: [a]dd_book, [b]orrow_book, [r]eturn_book");
+          puts ("          [l]ist_books, [s]ort_books, [f]ind_book");
+          puts ("          [h]elp, [q]uit, [w]arranty");
+          break;
+
+        case 'l':
+          for (i = 1; i < num_books; i++)
+            print_book_info (books[i]);
+          break;
+
+        case 'q':
+          puts ("Exited.");
+          goto quit;
+
+        case 's':
+          while (1)
+            if (sort_books () == 1)
+              continue;
+            else
+              break;
+          break;
+
+        case 'r':
+          return_book ();
+          break;
+        case 'w':
+          print_prog_warranty ();
+          break;
+
+        default:
+          fprintf (stderr, "Error: '%c': %s\n", c, "invalid input. Type 'h' for help");
+          continue;
+        }
+    }
 
 quit:
   save_catalog ();

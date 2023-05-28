@@ -4,15 +4,14 @@ LibrLog
 
 ## Description
 
-LibrLog is a command-line tool for logging books in an academic library. With LibrLog, you can easily keep track of the books the institution owns, the books patrons read, and the books that are available.
+LibrLog is a command-line tool for logging books in a library. With LibrLog, you can easily keep track of the books the institution owns, the books patrons read, and the books that are available.
 
 Key features of LibrLog include:
 
 - Simple and intuitive command-line interface for logging books and managing your library.
 - Easy-to-use book logging commands for adding new books to your library, keeping track of available books, and updating book information.
 - Search and filtering options for finding books in your library based on author, title, genre, or other criteria.
-- Export options for exporting your library data to a variety of file formats, including CSV, JSON, and XML. (?)
-- Secure storage of book data on your local machine, with options for encrypting your data for added security. (?)
+- Export options for exporting your library data to a variety of file formats, including CSV, JSON(?), and XML(?).
 
 To get started with LibrLog, simply download the source code from our GitHub repository at [https://github.com/fjbaldon/librlog.git](https://github.com/fjbaldon/librlog.git) and follow the installation instructions in the README. Once installed, you can start logging books in your library right away using the simple and intuitive command-lineinterface.
 
