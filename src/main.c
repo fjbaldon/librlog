@@ -72,12 +72,27 @@ static int  list_books                      (void);
 static void print_warranty                  (void);
 static void quit_prog                       (void);
 
-static int  get_fields_of_new_book          (Book *book);
+static int  get_fields_of_new_book          (Book       *book);
 static int  search_book_by_field_and_string (int         field,
                                              const char *str,
                                              int         i);
-static void print_a_book_s_fields           (const Book book);
+static void print_a_book_s_fields           (const Book  book);
 
+/*
+ * This function prints out the fields of a Book structure.
+ * It takes a Book structure as its argument.
+ * The fields printed are:
+ *   - Title
+ *   - Author
+ *   - Publisher
+ *   - Publication Year
+ *   - ISBN
+ *   - Accession Number
+ *   - Genre
+ *   - Checked Out By
+ *   - Checked Out Date
+ *   - Return Date
+ */
 static void
 print_a_book_s_fields (const Book book)
 {
@@ -94,12 +109,23 @@ print_a_book_s_fields (const Book book)
   printf ("Return Date:      %s\n", book.return_date);
 }
 
+/*
+ * This function searches for a book in the library by comparing a given field
+ * of the Book structure with a given string. It takes three arguments:
+ *   - field: an integer representing the field of the Book structure to be searched.
+ *   - str: a pointer to a const char string containing the value to be searched for.
+ *   - i: an integer representing the index of the starting book for the search.
+ * The function loops through the books in the library starting at the given index
+ * until it finds a match for the given field and string. It returns the index of
+ * the matching book in the library, or 0 if no match is found. If an invalid field
+ * value is given, the function returns -1 and prints an error message to stderr.
+ */
 static int
 search_book_by_field_and_string (int         field,
                                  const char *str,
                                  int         i)
 {
-  for (; i < num_books; i++)
+  while (i < num_books)
     {
       switch (field)
         {
@@ -137,11 +163,31 @@ search_book_by_field_and_string (int         field,
           fprintf (stderr, "Error: invalid field.\n");
           return -1;
         }
+
+      i++;
     }
 
   return 0;
 }
 
+/*
+ * This function prompts the user to enter the fields of a new Book structure.
+ * It takes a pointer to a Book structure as its argument.
+ * The fields entered are:
+ *   - Title
+ *   - Author
+ *   - Publisher
+ *   - Publication Year
+ *   - ISBN
+ *   - Accession Number
+ *   - Genre
+ * The function reads each field from standard input using fgets and stores it in
+ * a buffer. It then removes any trailing newline characters and copies the field
+ * value to the corresponding field of the Book structure using strncpy. The
+ * function also initializes the checked_out_by, checked_out_date, and return_date
+ * fields to empty strings.
+ * The function returns 0 on success and -1 if fgets fails to read input.
+ */
 static int
 get_fields_of_new_book (Book *book)
 {
@@ -243,12 +289,24 @@ get_fields_of_new_book (Book *book)
   return 0;
 }
 
+/*
+ * This function simply prints the message "Exited." to standard output.
+ * It is intended to be used as the action of an "exit" menu item or button
+ * in a graphical user interface or other interactive program.
+ */
 static void
 quit_prog (void)
 {
   puts ("Exited.");
 }
 
+/*
+ * This function prints information about the program's warranty and licensing to standard output.
+ * The information includes the program's version number, copyright notice, and the terms of
+ * the GNU General Public License under which the program is distributed.
+ * The function is intended to be used as a menu item or button in a graphical user interface or
+ * other interactive program to display legal information about the program.
+ */
 static void
 print_warranty (void)
 {
@@ -274,6 +332,13 @@ print_warranty (void)
   puts ("    Boston, MA 02110-1335  USA\n");
 }
 
+/*
+ * This function lists the fields of all Book structures in the global array "books",
+ * except for the first element (index 0), which is assumed to be unused. The function
+ * does this by calling the function "print_a_book_s_fields" for each Book structure
+ * in the array, passing it the Book structure as an argument.
+ * The function returns 0 on success.
+ */
 static int
 list_books (void)
 {
@@ -284,6 +349,15 @@ list_books (void)
   return 0;
 }
 
+/*
+ * This function prompts the user to select a field by which to sort the Book structures in the global array "books",
+ * and then lists the fields of all Book structures that match the user's search string for that field. The function
+ * does this by calling the function "search_book_by_field_and_string" for each Book structure in the array, passing
+ * it the field and search string specified by the user. The function then calls the function "print_a_book_s_fields"
+ * for each Book structure that matches the search criteria. The function handles input and output using standard
+ * input and output functions such as scanf, fgets, and printf.
+ * The function returns 0 on success and -1 if scanf or fgets fails to read input.
+ */
 static int
 sort_books (void)
 {
@@ -291,7 +365,7 @@ sort_books (void)
   char buffer[MAX_FIELD_LENGTH];
   int i = 0;
 
-  printf ("Type [?]: [a]uthor, [g]enre, [p]ublisher, publication_[y]ear, [b]ack.\n");
+  puts ("Type [?]: [a]uthor, [g]enre, [p]ublisher, publication_[y]ear, [b]ack.");
   printf ("     [ ]: ");
   if (scanf (" %c", &c) == EOF)
     {
@@ -369,6 +443,14 @@ sort_books (void)
   return 0;
 }
 
+/*
+ * This function prompts the user to enter a book title, reads the input using the function "fgets",
+ * and then searches the global array "books" for Book structures that match the search string for
+ * the TITLE field. The function does this by calling the function "search_book_by_field_and_string"
+ * for each Book structure in the array, passing it the TITLE field and search string specified by
+ * the user. The function then calls the function "print_a_book_s_fields" for each Book structure that
+ * matches the search criteria. The function returns 0 on success and -1 if fgets fails to read input.
+ */
 static int
 find_book (void)
 {
@@ -392,6 +474,17 @@ find_book (void)
   return 0;
 }
 
+/*
+ * This function prompts the user to enter an accession number for a book that is being returned.
+ * It then searches the global array "books" for a Book structure that matches the accession number
+ * by calling the function "search_book_by_field_and_string". If a match is found, the function
+ * checks if the Book structure is already returned by checking the "checked_out_by" field.
+ * If the book is already returned, the function outputs a message and returns 0. Otherwise, the
+ * function prompts the user to enter a return date in the format "YYYY-MM-DD", reads the input
+ * using the function "fgets", and updates the relevant fields in the Book structure to reflect
+ * the return. The function outputs a message indicating that the book has been returned and the
+ * return date. The function returns 0 on success and -1 if fgets fails to read input.
+ */
 static int
 return_book (void)
 {
@@ -446,7 +539,17 @@ return_book (void)
   return 0;
 }
 
-
+/*
+ * This function prompts the user to enter an accession number for a book that they want to borrow.
+ * It then searches the global array "books" for a Book structure that matches the accession number
+ * by calling the function "search_book_by_field_and_string". If a match is found, the function
+ * checks if the Book structure is already checked out by checking the "checked_out_by" field.
+ * If the book is already checked out, the function outputs a message and returns 0. Otherwise, the
+ * function prompts the user to enter their name and the current date in the format "YYYY-MM-DD"
+ * using the function "fgets". The function then updates the relevant fields in the Book structure
+ * to reflect the checkout. The function outputs a message indicating that the book has been
+ * borrowed successfully. The function returns 0 on success and -1 if fgets fails to read input.
+ */
 static int
 borrow_book (void)
 {
@@ -503,6 +606,17 @@ borrow_book (void)
   return 0;
 }
 
+/*
+ * This function prompts the user to enter an accession number for a book that they want to delete.
+ * It then searches the global array "books" for a Book structure that matches the accession number
+ * by calling the function "search_book_by_field_and_string". If a match is found, the function
+ * deletes the Book structure by shifting all subsequent elements of the array "books" one index to
+ * the left and decrementing the variable "num_books". The function outputs a message indicating that
+ * the book has been deleted successfully. If the Book structure is not found in the array "books",
+ * the function outputs a message indicating that the book was not found. The function returns 0 on
+ * success, -1 if fgets fails to read input, and -1 if search_book_by_field_and_string fails to find
+ * a matching book.
+ */
 static int
 delete_book (void)
 {
@@ -539,6 +653,16 @@ delete_book (void)
     }
 }
 
+/*
+ * This function prompts the user to enter information for a new book by calling the function
+ * "get_fields_of_new_book". If the function returns -1, indicating that the user did not provide
+ * valid input for all fields, the function returns -1. Otherwise, the function checks if the
+ * maximum number of books has been reached. If so, the function outputs an error message and
+ * returns -1. Otherwise, the function copies the Book structure into the global array "books"
+ * and increments the variable "num_books". Finally, the function returns 0 on success and -1 if
+ * the user does not provide valid input for all fields or if the maximum number of books has been
+ * reached.
+ */
 static int
 add_book (void)
 {
@@ -549,8 +673,8 @@ add_book (void)
 
   if (num_books >= MAX_BOOKS)
     {
-      fprintf (stderr, "Error: maximum number of books reached.\n");
-      return -1;
+      puts ("Maximum number of books reached.");
+      return 0;
     }
 
   memcpy (&books[num_books], &book, sizeof (Book));
@@ -569,6 +693,14 @@ add_book (void)
   return 0;
 }
 
+/*
+ * This function saves the current catalog of books to a file named "FILE_NAME". If the file
+ * cannot be opened for writing, the function outputs an error message and returns -1. Otherwise,
+ * the function writes the column headers to the file, followed by the data for each book in the
+ * catalog. The function assumes that the global array "books" contains valid Book structures up
+ * to the index "num_books". Finally, the function closes the file and returns 0 on success and -1
+ * if an error occurs while writing to the file.
+ */
 static int
 save_catalog (void)
 {
@@ -603,6 +735,12 @@ save_catalog (void)
   return 0;
 }
 
+/*
+ * This function prints a list of commands that the user can enter to perform various actions in the
+ * program. The list includes abbreviations for each command in square brackets, followed by a brief
+ * description of what the command does. The function uses the standard output stream to print the
+ * list of commands and descriptions, and does not return a value.
+ */
 static void
 print_help (void)
 {
@@ -611,6 +749,12 @@ print_help (void)
   puts ("          [h]elp, [w]arranty, [q]uit");
 }
 
+/*
+ * This function prints information about the program, including its version number, copyright
+ * holder, and a disclaimer that the program comes with no warranty. The function also prints a
+ * message telling the user how to get help, by typing 'h'. The function uses the standard output
+ * stream to print the information, and does not return a value.
+ */
 static void
 print_info (void)
 {
@@ -620,6 +764,16 @@ print_info (void)
   puts ("For help type 'h'.");
 }
 
+/*
+ * This function loads a catalog of books from a file named "FILE_NAME". The function assumes that
+ * the file contains comma-separated values for each field of a Book structure, and that the global
+ * array "books" is empty when the function is called. The function reads the file line by line,
+ * parsing each line into the fields of a Book structure and storing it in the next available index
+ * of the "books" array. The function keeps track of the number of books added to the array and
+ * returns this value on success, or -1 if an error occurs. If the file does not exist or cannot be
+ * opened for reading, the function outputs an error message and returns -1. If an error occurs
+ * while reading the file, the function outputs an error message, closes the file, and returns -1.
+ */
 static int
 load_catalog (void)
 {
@@ -634,6 +788,7 @@ load_catalog (void)
       return -1;
     }
 
+  num_books = 0;
   while (fgets (line, MAX_LINE_LENGTH, fp) != NULL)
     {
       field = strtok (line, ",");
@@ -730,6 +885,14 @@ load_catalog (void)
   return num_books;
 }
 
+/*
+ * This function verifies the user's password by prompting the user to enter a password and comparing
+ * it to a stored password. The function assumes that the maximum length of the entered password is
+ * MAX_LINE_LENGTH. If the user's input exceeds this length, the function discards any extra characters.
+ * If the user enters a password that matches the stored password, the function returns 1. Otherwise,
+ * the function returns 0. If an error occurs while reading the user's input, the function outputs an
+ * error message and returns -1.
+ */
 static int
 verify_user (void)
 {
@@ -754,10 +917,19 @@ verify_user (void)
   return 0;
 }
 
+/*
+ * This function is the entry point of the program. It allocates memory for the global array "books"
+ * of Book structures using malloc(), loads a catalog of books from a file, verifies the user's
+ * password, and enters a loop to read user input and perform various operations on the catalog
+ * of books. The function returns EXIT_SUCCESS if the program terminates successfully, or
+ * EXIT_FAILURE if an error occurs. If an error occurs while reading user input or performing
+ * operations on the catalog of books, the function outputs an error message and exits the program.
+ */
 int
 main (void)
 {
   char c;
+  int ret;
 
   books = (Book *) malloc (sizeof (Book) * MAX_BOOKS);
 
@@ -767,41 +939,53 @@ main (void)
       return EXIT_FAILURE;
     }
 
-  while (!verify_user ()) {}
+  while (1)
+    {
+      ret = verify_user ();
+      if (ret == -1)
+        goto err_quit;
+      else if (ret == 1)
+        break;
+      else
+        continue;
+    }
   system ("clear");
   print_info ();
 
-  num_books = 0;
   num_books = load_catalog ();
   if (num_books == -1)
-    goto quit;
+    goto err_quit;
 
   while (1)
     {
       printf (">>> ");
       if (scanf (" %c", &c) == EOF)
         {
-          puts ("EOF reached.");
-          goto quit;
+          fprintf (stderr, "Error: scanf failed.\n");
+          goto err_quit;
         }
       while ((d = getchar ()) != '\n' && d != EOF) {}
 
       switch (c)
         {
         case 'a':
-          add_book ();
+          if (add_book () == -1)
+            goto err_quit;
           break;
 
         case 'b':
-          borrow_book ();
+          if (borrow_book () == -1)
+            goto err_quit;
           break;
 
         case 'd':
-          delete_book ();
+          if (delete_book () == -1)
+            goto err_quit;
           break;
 
         case 'f':
-          find_book ();
+          if (find_book () == -1)
+            goto err_quit;
           break;
 
         case 'h':
@@ -814,14 +998,16 @@ main (void)
 
         case 'q':
           quit_prog ();
-          goto quit;
+          goto safe_quit;
 
         case 's':
-          sort_books ();
+          if (sort_books () == -1)
+            goto err_quit;
           break;
 
         case 'r':
-          return_book ();
+          if (return_book () == -1)
+            goto err_quit;
           break;
 
         case 'w':
@@ -834,8 +1020,10 @@ main (void)
         }
     }
 
-quit:
+safe_quit:
   save_catalog ();
+
+err_quit:
   free (books);
   return EXIT_SUCCESS;
 }
