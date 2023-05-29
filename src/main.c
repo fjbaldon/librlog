@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* macros */
 #define FILE_NAME "data/library_catalog.csv"
 #define PROG_VERSION "librlog 0.2"
 #define MAX_LINE_LENGTH 2560
@@ -51,10 +52,15 @@ enum {
   GENRE,
 };
 
+/* variables */
 static Book *books;
 static int num_books;
 static int d;
 
+/*function declarations */
+static int verify_user (void);
+
+/*function implementations */
 static int
 verify_user (void)
 {
@@ -181,6 +187,43 @@ return_book (void)
 
   printf ("Book %s has been returned on %s.\n", books[i].title, return_date);
   return 0;
+}
+
+static int
+delete_book (void)
+{
+  char buffer[MAX_FIELD_LENGTH];
+  int i, j;
+
+  printf ("Enter accession number: ");
+  if (fgets (buffer, MAX_FIELD_LENGTH, stdin) == NULL)
+    {
+      fprintf (stderr, "Error: fgets failed.\n");
+      return -1;
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn (buffer, "\n")] = '\0';
+
+  i = search_book_by_field_and_string (ACCESSION_NUMBER, buffer, 1);
+
+  if (i == 0)
+    {
+      puts ("Book not found.");
+      return 0;
+    }
+  else if (i > 0)
+    {
+      for (j = i; j < num_books - 1; j++)
+        books[j] = books[j + 1];
+      num_books--;
+      puts ("Book deleted.");
+      return 0;
+    }
+  else
+    {
+      return -1;
+    }
 }
 
 int
@@ -401,7 +444,7 @@ save_catalog (void)
 }
 
 static int
-add_book_to_books (Book book)
+add_book_to_mem (Book book)
 {
   if (num_books >= MAX_BOOKS)
     {
@@ -425,7 +468,7 @@ add_book_to_books (Book book)
 }
 
 int
-get_book_fields (Book *book)
+get_fields_of_new_book (Book *book)
 {
   char buffer[MAX_FIELD_LENGTH];
 
@@ -526,7 +569,7 @@ get_book_fields (Book *book)
 }
 
 static int
-load_catalog (void)
+load_catalog_to_mem (void)
 {
   FILE *fp;
   char line[MAX_LINE_LENGTH];
@@ -662,6 +705,14 @@ print_prog_warranty (void)
 }
 
 static void
+print_prog_help (void)
+{
+  puts ("Type [?]: [a]dd_book, [b]orrow_book, [d]elete_book, [r]eturn_book");
+  puts ("          [l]ist_books, [s]ort_books, [f]ind_book");
+  puts ("          [h]elp, [q]uit, [w]arranty");
+}
+
+static void
 print_prog_info (void)
 {
   puts (PROG_VERSION);
@@ -689,7 +740,7 @@ main (void)
   system ("clear");
   print_prog_info ();
 
-  if ((num_books = load_catalog ()) == -1)
+  if ((num_books = load_catalog_to_mem ()) == -1)
     goto quit;
 
   while (1)
@@ -705,9 +756,9 @@ main (void)
       switch (c)
         {
         case 'a':
-          if (get_book_fields (&book) == -1)
+          if (get_fields_of_new_book (&book) == -1)
             goto quit;
-          if (add_book_to_books (book) == -1)
+          if (add_book_to_mem (book) == -1)
             continue;
           num_books++;
           break;
@@ -716,14 +767,16 @@ main (void)
           borrow_book ();
           break;
 
+        case 'd':
+          delete_book ();
+          break;
+
         case 'f':
           find_book ();
           break;
 
         case 'h':
-          puts ("Type [?]: [a]dd_book, [b]orrow_book, [r]eturn_book");
-          puts ("          [l]ist_books, [s]ort_books, [f]ind_book");
-          puts ("          [h]elp, [q]uit, [w]arranty");
+          print_prog_help ();
           break;
 
         case 'l':
@@ -736,7 +789,7 @@ main (void)
           goto quit;
 
         case 's':
-          while (sort_books () > 0) {}
+          sort_books ();
           break;
 
         case 'r':
