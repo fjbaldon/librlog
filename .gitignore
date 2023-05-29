@@ -1,5 +1,6 @@
 # IDE-specific files
 .buildconfig
+.vscode
 .idea
 
 # Build output directories
