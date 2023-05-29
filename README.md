@@ -59,7 +59,7 @@ $ librlog
 
 This will launch the program and allow you to log books in a library from the command line. For more information on how to use the program, see the program's documentation or user manual.
 
-If you're using an Android device, you can install Termux from either [F-Droid](https://f-droid.org/en/packages/com.termux/)or [Google Play](https://play.google.com/store/apps/details?id=com.termux&pli=1). Once installed, you can run the following commands to ensure that your system is up-to-date and to install the necessary dependencies:
+If you're using an Android device, you can install Termux from either [F-Droid](https://f-droid.org/en/packages/com.termux/) or [Google Play](https://play.google.com/store/apps/details?id=com.termux&pli=1). Once installed, you can run the following commands to ensure that your system is up-to-date and to install the necessary dependencies:
 
 1. Update your system:
    ```
