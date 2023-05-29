@@ -59,7 +59,19 @@ $ librlog
 
 This will launch the program and allow you to log books in a library from the command line. For more information on how to use the program, see the program's documentation or user manual.
 
-**Note: This section is currently under development and will be updated soon. Thank you for your patience!**
+If you're using an Android device, you can install Termux from either [F-Droid](https://f-droid.org/en/packages/com.termux/)or [Google Play](https://play.google.com/store/apps/details?id=com.termux&pli=1). Once installed, you can run the following commands to ensure that your system is up-to-date and to install the necessary dependencies:
+
+1. Update your system:
+   ```
+   pkg upgrade
+   ```
+2. Install the required dependencies:
+   ```
+   pkg install git clang make
+   ```
+3. Follow the installation instructions provided above.
+ 
+By following these steps, you should be able to set up your Android device to compile and run C code using Termux.
 
 ## Usage
 
@@ -132,8 +144,6 @@ If you would like to contribute to any of these issues, please comment on the is
 - Reign Alger Ofamen     (): Contributer
 
 Finally, we would like to thank our users and anyone else who has supported the project in any way. We appreciate your feedback and contributions, and we will continue to work hard to make this project the best it can be.
-
-**Note: This section is currently under development and will be updated soon. Thank you for your patience!**
 
 ## License
 
