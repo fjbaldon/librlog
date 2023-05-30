@@ -1104,14 +1104,12 @@ int
 main (void)
 {
   char c;
-  int ret_val;
 
-  ret_val = EXIT_FAILURE;
   books = (Book *) malloc (sizeof (Book) * MAX_BOOKS);
   if (books == NULL)
     {
       fprintf (stderr, "Error failed to allocate memory.\n");
-      return ret_val;
+      return EXIT_FAILURE;
     }
 
   while (1)
@@ -1121,11 +1119,8 @@ main (void)
       is_verified = verify_user ();
       if (is_verified == 1)
         break;
-      else if (is_verified == EOF_ERR || is_verified == IO_ERR)
-        {
-          ret_val = EXIT_FAILURE;
-          goto failure;
-        }
+      else if (is_verified < 0)
+        goto nosave_quit;
       else
         continue;
     }
@@ -1134,10 +1129,7 @@ main (void)
 
   num_books = load_catalog ();
   if (num_books < 0)
-    {
-      ret_val = EXIT_FAILURE;
-      goto failure;
-    }
+    goto nosave_quit;
 
   while (1)
     {
@@ -1145,10 +1137,7 @@ main (void)
 
       printf (">>> ");
       if (scanf (" %c", &c) == EOF)
-        {
-          ret_val = EXIT_SUCCESS;
-          goto success;
-        }
+          goto save_quit;
       while ((d = getchar ()) != '\n' && d != EOF) {}
 
       switch (c)
@@ -1178,7 +1167,7 @@ main (void)
           break;
 
         case 'q':
-          goto success;
+          goto save_quit;
 
         case 's':
           status = sort_books ();
@@ -1197,31 +1186,15 @@ main (void)
           continue;
         }
 
-      switch (status)
-        {
-        case 0:
-          continue;
-
-        case EOF_ERR:
-          goto success;
-
-        case INPUT_ERR:
-          continue;
-
-        case IO_ERR:
-          goto success;
-
-        default:
-          fprintf (stderr, "Error invalid return value.\n");
-          continue;
-        }
+      if (status < 0)
+        goto save_quit;
     }
 
-success:
+save_quit:
   save_catalog ();
 
-failure:
+nosave_quit:
   free (books);
-  return ret_val;
+  return EXIT_SUCCESS;
 }
 
