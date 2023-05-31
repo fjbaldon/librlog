@@ -1120,7 +1120,7 @@ main (void)
       if (is_verified == 1)
         break;
       else if (is_verified < 0)
-        goto nosave_quit;
+        goto failure;
       else
         continue;
     }
@@ -1129,7 +1129,7 @@ main (void)
 
   num_books = load_catalog ();
   if (num_books < 0)
-    goto nosave_quit;
+    goto failure;
 
   while (1)
     {
@@ -1137,7 +1137,7 @@ main (void)
 
       printf (">>> ");
       if (scanf (" %c", &c) == EOF)
-          goto save_quit;
+        goto success;
       while ((d = getchar ()) != '\n' && d != EOF) {}
 
       switch (c)
@@ -1167,7 +1167,7 @@ main (void)
           break;
 
         case 'q':
-          goto save_quit;
+          goto success;
 
         case 's':
           status = sort_books ();
@@ -1186,14 +1186,32 @@ main (void)
           continue;
         }
 
-      if (status < 0)
-        goto save_quit;
+      switch (status)
+        {
+        case 0:
+          continue;
+
+        case EOF_ERR:
+          goto success;
+
+        case INPUT_ERR:
+          continue;
+
+        case IO_ERR:
+          goto failure;
+
+        default:
+          fprintf (stderr, "Invalid status code.\n");
+          continue;
+        }
     }
 
-save_quit:
-  save_catalog ();
+failure:
+  free (books);
+  return EXIT_FAILURE;
 
-nosave_quit:
+success:
+  save_catalog ();
   free (books);
   return EXIT_SUCCESS;
 }
