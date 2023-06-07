@@ -671,6 +671,12 @@ add_book (void)
   char buffer[MAX_FIELD_LEN];
   Book book;
 
+  if (num_books >= MAX_BOOKS)
+    {
+      puts ("Maximum number of books reached.");
+      return 0;
+    }
+
   printf ("Enter book title: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -688,7 +694,7 @@ add_book (void)
   strncpy (book.title, buffer, MAX_FIELD_LEN - 1);
   book.title[MAX_FIELD_LEN - 1] = '\0';
 
-  printf ("Enter author name: ");
+  printf ("Enter book author: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -705,7 +711,7 @@ add_book (void)
   strncpy (book.author, buffer, MAX_FIELD_LEN - 1);
   book.author[MAX_FIELD_LEN - 1] = '\0';
 
-  printf ("Enter publisher name: ");
+  printf ("Enter book publisher: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -756,7 +762,7 @@ add_book (void)
   strncpy (book.isbn, buffer, MAX_FIELD_LEN - 1);
   book.isbn[MAX_FIELD_LEN - 1] = '\0';
 
-  printf ("Enter the accession number: ");
+  printf ("Enter book accession number: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -798,12 +804,6 @@ add_book (void)
 
   strncpy (book.return_date, "", MAX_FIELD_LEN - 1);
   book.return_date[MAX_FIELD_LEN - 1] = '\0';
-
-  if (num_books >= MAX_BOOKS)
-    {
-      puts ("Maximum number of books reached.");
-      return 0;
-    }
 
   memcpy (&books[num_books], &book, sizeof (Book));
   books[num_books].title[MAX_FIELD_LEN - 1] = '\0';
