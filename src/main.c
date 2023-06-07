@@ -27,7 +27,6 @@
 #define MAX_LINE_LEN 2560
 #define MAX_FIELD_LEN 256
 #define MAX_NUM_FIELDS 10
-#define MAX_BOOKS 1000
 #define EOF_ERR -1
 #define INPUT_ERR -2
 #define IO_ERR -3
@@ -82,6 +81,17 @@ static Book *books;
 static int   num_books;
 
 /*
+ * Variable: max_books
+ * -------------------
+ * An integer indicating the maximum number of books that the library can hold.
+ *
+ * This variable is used to set the initial capacity of the `books` array.
+ * It is initialized to a default value at startup and will be updated automatically
+ * if the library needs to hold more books.
+ */
+static int   max_books;
+
+/*
  * Variable: d
  * -----------
  * An integer used to discard excess input characters from stdin.
@@ -106,9 +116,6 @@ static int  find_book                       (void);
 static int  sort_books                      (void);
 static int  list_books                      (void);
 static int  print_warranty                  (void);
-static int  ret_first_occurence_of_str      (int         field,
-                                             const char *str,
-                                             int         init_i);
 static int  print_book                      (const Book  book);
 
 /*
@@ -134,74 +141,6 @@ print_book (const Book book)
   printf ("Checked Out Date: %s\n", book.checked_out_date);
   printf ("Return Date:      %s\n", book.return_date);
   putchar ('\n');
-
-  return 0;
-}
-
-/*
- * Function: ret_first_occurence_of_str
- * -------------------------------------
- * Search for the first occurrence of a given string in a specific field
- * of a list of books starting from a specified index.
- *
- * field:   An integer indicating the field to search for the string in.
- * str:     A pointer to a null-terminated string containing the search query.
- * init_i:  An integer indicating the index to start the search from.
- *
- * returns: The index of the first occurrence of the string in the specified field
- *          if found, otherwise 0.
- *          If an invalid value is passed for the field parameter, an error message is
- *          printed to stderr and INPUT_ERR is returned.
- */
-static int
-ret_first_occurence_of_str (int         field,
-                            const char *str,
-                            int         init_i)
-{
-  int i;
-
-  i = init_i;
-  while (i < num_books)
-    {
-      switch (field)
-        {
-        case TITLE:
-          if (strcmp (books[i].title, str) == 0)
-            return i;
-          break;
-
-        case AUTHOR:
-          if (strcmp (books[i].author, str) == 0)
-            return i;
-          break;
-
-        case PUBLISHER:
-          if (strcmp (books[i].publisher, str) == 0)
-            return i;
-          break;
-
-        case PUBLICATION_YEAR:
-          if (strcmp (books[i].publication_year, str) == 0)
-            return i;
-          break;
-
-        case ACCESSION_NUM:
-          if (strcmp (books[i].accession_num, str) == 0)
-            return i;
-          break;
-
-        case GENRE:
-          if (strcmp (books[i].genre, str) == 0)
-            return i;
-          break;
-
-        default:
-          fprintf (stderr, "Error invalid field as argument passed.\n");
-          return INPUT_ERR;
-        }
-
-      i++;
-    }
 
   return 0;
 }
@@ -270,7 +209,7 @@ list_books (void)
  * It then prints the details of the matching books to the console.
  *
  * The user can choose to search for books
- * by author, genre, publisher, or publication year.
+ * by title, author, publisher, publication year, or genre.
  * If the user enters an invalid input, the function returns an error code.
  *
  * returns: An integer indicating the success of the function.
@@ -281,15 +220,20 @@ sort_books (void)
 {
   char c;
   char buffer[MAX_FIELD_LEN];
-  int i;
+  int num_books_found, i;
 
-  printf ("Type [?]: [a]uthor, [g]enre, [p]ublisher, publication_[y]ear, [b]ack.\n");
-  printf ("     [ ]: ");
+  puts ("Sorting book...");
+  puts ("  a - author");
+  puts ("  b - go back");
+  puts ("  g - genre");
+  puts ("  p - publisher");
+  puts ("  t - title");
+  puts ("  y - publication year");
+  puts ("> ");
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
   while ((d = getchar ()) != '\n' && d != EOF) {}
 
-  i = 0;
   switch (c)
     {
     case 'a':
@@ -307,8 +251,19 @@ sort_books (void)
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      while (0 < (i = ret_first_occurence_of_str (AUTHOR, buffer, ++i)))
-        print_book (books[i]);
+      num_books_found = 0;
+      for (i = 0; i < num_books; i++)
+        {
+        if (!strcmp (buffer, books[i].author))
+            {
+              num_books_found++;
+              print_book (books[i]);
+            }
+        }
+      if (num_books_found < 1)
+        puts ("No match found.");
+      else
+        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     case 'b':
@@ -329,8 +284,19 @@ sort_books (void)
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      while (0 < (i = ret_first_occurence_of_str (GENRE, buffer, ++i)))
-        print_book (books[i]);
+      num_books_found = 0;
+      for (i = 0; i < num_books; i++)
+        {
+        if (!strcmp (buffer, books[i].genre))
+            {
+              num_books_found++;
+              print_book (books[i]);
+            }
+        }
+      if (num_books_found < 1)
+        puts ("No match found.");
+      else
+        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     case 'p':
@@ -348,8 +314,49 @@ sort_books (void)
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      while (0 < (i = ret_first_occurence_of_str (PUBLISHER, buffer, ++i)))
-        print_book (books[i]);
+      num_books_found = 0;
+      for (i = 0; i < num_books; i++)
+        {
+        if (!strcmp (buffer, books[i].publisher))
+            {
+              num_books_found++;
+              print_book (books[i]);
+            }
+        }
+      if (num_books_found < 1)
+        puts ("No match found.");
+      else
+        printf ("Found %d match/s.\n", num_books_found);
+      break;
+
+    case 't':
+      printf ("Enter book title: ");
+      if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+        {
+          if (feof (stdin))
+            return EOF_ERR;
+          else
+            {
+              fprintf (stderr, "Error reading from stdin.\n");
+              return IO_ERR;
+            }
+        }
+      if (strchr (buffer, '\n') == NULL)
+        while ((d = getchar ()) != '\n' && d != EOF) {}
+      buffer[strcspn(buffer, "\n")] = '\0';
+      num_books_found = 0;
+      for (i = 0; i < num_books; i++)
+        {
+        if (!strcmp (buffer, books[i].title))
+            {
+              num_books_found++;
+              print_book (books[i]);
+            }
+        }
+      if (num_books_found < 1)
+        puts ("No match found.");
+      else
+        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     case 'y':
@@ -367,8 +374,19 @@ sort_books (void)
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      while (0 < (i = ret_first_occurence_of_str (PUBLICATION_YEAR, buffer, ++i)))
-        print_book (books[i]);
+      num_books_found = 0;
+      for (i = 0; i < num_books; i++)
+        {
+        if (!strcmp (buffer, books[i].publication_year))
+            {
+              num_books_found++;
+              print_book (books[i]);
+            }
+        }
+      if (num_books_found < 1)
+        puts ("No match found.");
+      else
+        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     default:
@@ -376,7 +394,6 @@ sort_books (void)
       return INPUT_ERR;
     }
 
-  puts ("Done sorting.");
   return 0;
 }
 
@@ -399,9 +416,8 @@ static int
 find_book (void)
 {
   char buffer[MAX_FIELD_LEN];
-  int i;
+  int num_books_found, i;
 
-  i = 0;
   printf ("Enter book title: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -418,10 +434,20 @@ find_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
 
   buffer[strcspn (buffer, "\n")] = '\0';
-  while (0 < (i = ret_first_occurence_of_str (TITLE, buffer, ++i)))
-    print_book (books[i]);
+  num_books_found = 0;
+  for (i = 0; i < num_books; i++)
+    {
+      if (!strcmp (buffer, books[i].title))
+        {
+          num_books_found++;
+          print_book (books[i]);
+        }
+    }
+  if (num_books_found < 1)
+    puts ("No match found.");
+  else
+    printf ("Found %d match/s.\n", num_books_found);
 
-  puts ("Done finding.");
   return 0;
 }
 
@@ -445,12 +471,12 @@ find_book (void)
 static int
 return_book (void)
 {
-  char accession_number[MAX_FIELD_LEN];
+  char accession_num[MAX_FIELD_LEN];
   char return_date[MAX_FIELD_LEN];
   int i;
 
   printf ("Enter accession number: ");
-  if (fgets (accession_number, MAX_FIELD_LEN, stdin) == NULL)
+  if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
         return EOF_ERR;
@@ -461,18 +487,26 @@ return_book (void)
         }
     }
 
-  if (strchr (accession_number, '\n') == NULL)
+  if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
 
-  accession_number[strcspn (accession_number, "\n")] = '\0';
+  accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  i = ret_first_occurence_of_str (ACCESSION_NUM, accession_number, 1);
-  if (i < 0)
-    return i;
+  for (i = 0; i < num_books; i++)
+    {
+      if (!strcmp (accession_num, books[i].accession_num))
+        break;
+    }
+
+  if (i == num_books)
+    {
+      puts ("Book not found.");
+      return 0;
+    }
 
   if (strcmp (books[i].checked_out_by, "") == 0)
     {
-      puts ("Book is already returned.");
+      puts ("Book was already returned.");
       return 0;
     }
 
@@ -527,12 +561,12 @@ static int
 borrow_book (void)
 {
   int i;
-  char accession_number[MAX_FIELD_LEN];
+  char accession_num[MAX_FIELD_LEN];
   char checked_out_by[MAX_FIELD_LEN];
   char checked_out_date[MAX_FIELD_LEN];
 
   printf ("Enter accession number: ");
-  if (fgets (accession_number, MAX_FIELD_LEN, stdin) ==  NULL)
+  if (fgets (accession_num, MAX_FIELD_LEN, stdin) ==  NULL)
     {
       if (feof (stdin))
         return EOF_ERR;
@@ -542,13 +576,21 @@ borrow_book (void)
           return IO_ERR;
         }
     }
-  if (strchr (accession_number, '\n') == NULL)
+  if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-  accession_number[strcspn (accession_number, "\n")] = '\0';
+  accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  i = ret_first_occurence_of_str (ACCESSION_NUM, accession_number, 1);
-  if (i < 0)
-    return i;
+  for (i = 0; i < num_books; i++)
+    {
+      if (!strcmp (accession_num, books[i].accession_num))
+        break;
+    }
+
+  if (i == num_books)
+    {
+      puts ("Book not found.");
+      return 0;
+    }
 
   if (strcmp (books[i].checked_out_by, "") != 0)
     {
@@ -584,7 +626,7 @@ borrow_book (void)
           return IO_ERR;
         }
     }
-  if (strchr (checked_out_by, '\n') == NULL)
+  if (strchr (checked_out_date, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   checked_out_date[strcspn (checked_out_date, "\n")] = '\0';
   strncpy (books[i].checked_out_date, checked_out_date, MAX_FIELD_LEN -1);
@@ -613,11 +655,11 @@ borrow_book (void)
 static int
 delete_book (void)
 {
-  char buffer[MAX_FIELD_LEN];
+  char accession_num[MAX_FIELD_LEN];
   int i, j;
 
   printf ("Enter accession number: ");
-  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+  if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
         return EOF_ERR;
@@ -627,27 +669,27 @@ delete_book (void)
           return IO_ERR;
         }
     }
-  if (strchr (buffer, '\n') == NULL)
+  if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-  buffer[strcspn (buffer, "\n")] = '\0';
+  accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  i = ret_first_occurence_of_str (ACCESSION_NUM, buffer, 1);
-  if (i < 0)
-    return i;
-
-  if (i > 0)
+  for (i = 0; i < num_books; i++)
     {
-      for (j = i; j < num_books - 1; j++)
-        books[j] = books[j + 1];
-      num_books--;
-      puts ("Book deleted.");
-      return 0;
+      if (!strcmp (accession_num, books[i].accession_num))
+        break;
     }
-  else
+
+  if (i == num_books)
     {
       puts ("Book not found.");
       return 0;
     }
+
+  for (j = i; j < num_books - 1; j++)
+    books[j] = books[j + 1];
+  num_books--;
+  puts ("Book deleted.");
+  return 0;
 }
 
 /*
@@ -659,8 +701,7 @@ delete_book (void)
  * about a book and adds the book to the books array.
  *
  * If the maximum number of books has been reached,
- * an error message is printed to the console
- * and the function returns successfully.
+ * the books array is resized to hold additional books.
  *
  * returns: An integer indicating the success of the function.
  * If an error occurs, the appropriate error code is returned.
@@ -671,10 +712,10 @@ add_book (void)
   char buffer[MAX_FIELD_LEN];
   Book book;
 
-  if (num_books >= MAX_BOOKS)
+  if (num_books >= max_books)
     {
-      puts ("Maximum number of books reached.");
-      return 0;
+      max_books += 500;
+      books = realloc (books, sizeof (book) * max_books);
     }
 
   printf ("Enter book title: ");
@@ -884,9 +925,16 @@ save_catalog (void)
 static int
 print_help (void)
 {
-  puts ("Type [?]: [a]dd_book, [d]elete_book, [b]orrow_book, [r]eturn_book");
-  puts ("          [f]ind_book, [s]ort_books, [l]ist_books");
-  puts ("          [h]elp, [w]arranty, [q]uit");
+  puts (" a - add book");
+  puts (" b - borrow book");
+  puts (" d - delete book");
+  puts (" f - find book");
+  puts (" h - show program help");
+  puts (" l - list books");
+  puts (" q - quit program");
+  puts (" r - return book");
+  puts (" s - sort books");
+  puts (" w - show program warranty");
 
   return 0;
 }
@@ -1105,7 +1153,8 @@ main (void)
 {
   char c;
 
-  books = (Book *) malloc (sizeof (Book) * MAX_BOOKS);
+  max_books = 1000;
+  books = (Book *) malloc (sizeof (Book) * max_books);
   if (books == NULL)
     {
       fprintf (stderr, "Error failed to allocate memory.\n");
