@@ -111,6 +111,7 @@ static int  load_catalog                    (void);
 static int  print_help                      (void);
 static int  save_catalog                    (void);
 static int  add_book                        (void);
+static int  edit_book                       (void);
 static int  delete_book                     (void);
 static int  borrow_book                     (void);
 static int  return_book                     (void);
@@ -694,6 +695,236 @@ delete_book (void)
   return 0;
 }
 
+static int
+edit_book (void)
+{
+  char accession_num[MAX_FIELD_LEN];
+  char buffer[MAX_FIELD_LEN];
+  char c;
+  Book book;
+  int  i;
+
+  puts ("Editing book...");
+  printf ("Enter accession number: ");
+  if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (accession_num, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  accession_num[strcspn (accession_num, "\n")] = '\0';
+
+  for (i = 0; i < num_books; i++)
+    {
+      if (!strcmp (accession_num, books[i].accession_num))
+        break;
+    }
+
+  if (i == num_books)
+    {
+      puts ("Book not found.");
+      return 0;
+    }
+
+  print_book (books[i]);
+  printf ("Continue? (y/n): ");
+  if (scanf (" %c", &c) == EOF)
+    return EOF_ERR;
+  while ((d = getchar ()) != '\n' && d != EOF) {}
+
+  if (c == 'n')
+    {
+      puts ("Operation canceled.");
+      return 0;;
+    }
+  else if (c != 'y' && c != 'n')
+    {
+      puts ("Invalid input choice. Canceling operation.");
+      return INPUT_ERR;
+    }
+
+  printf ("\nLeave blank if you want to leave as is.\n");
+  printf ("Enter book title (%s): ", books[i].title);
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.title, buffer, MAX_FIELD_LEN - 1);
+  book.title[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter book author: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.author, buffer, MAX_FIELD_LEN - 1);
+  book.author[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter book publisher: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.publisher, buffer, MAX_FIELD_LEN - 1);
+  book.publisher[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter publication year: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.publication_year, buffer, MAX_FIELD_LEN - 1);
+  book.publication_year[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter ISBN: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.isbn, buffer, MAX_FIELD_LEN - 1);
+  book.isbn[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter book accession number: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.accession_num, buffer, MAX_FIELD_LEN - 1);
+  book.accession_num[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter genre: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.genre, buffer, MAX_FIELD_LEN - 1);
+  book.genre[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter checked out by: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.checked_out_by, buffer, MAX_FIELD_LEN - 1);
+  book.checked_out_by[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter checked out date: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.checked_out_date, buffer, MAX_FIELD_LEN - 1);
+  book.checked_out_date[MAX_FIELD_LEN - 1] = '\0';
+
+  printf ("Enter return date: ");
+  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
+    {
+      if (feof (stdin))
+        return EOF_ERR;
+      else
+        {
+          fprintf (stderr, "Error reading from stdin.\n");
+          return IO_ERR;
+        }
+    }
+  if (strchr (buffer, '\n') == NULL)
+    while ((d = getchar ()) != '\n' && d != EOF) {}
+  buffer[strcspn(buffer, "\n")] = '\0';
+  strncpy (book.return_date, buffer, MAX_FIELD_LEN - 1);
+  book.return_date[MAX_FIELD_LEN - 1] = '\0';
+
+  books[i] = book;
+  puts ("Book edited successfully.");
+  return 0;
+}
+
 /*
  * Function: add_book
  * ------------------
@@ -930,6 +1161,7 @@ print_help (void)
   puts (" a - add book");
   puts (" b - borrow book");
   puts (" d - delete book");
+  puts (" e - edit book");
   puts (" f - find book");
   puts (" h - show program help");
   puts (" l - list books");
@@ -1203,6 +1435,10 @@ main (void)
 
         case 'd':
           status = delete_book ();
+          break;
+
+        case 'e':
+          status = edit_book ();
           break;
 
         case 'f':
