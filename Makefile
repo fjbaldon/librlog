@@ -10,8 +10,8 @@ DEBUG = -ggdb -fno-omit-frame-pointer
 OPTIMIZE = -O2
 
 
-$(BIN_DIR)/$(BIN_NAME): Makefile $(SRC_DIR)/main.c | $(BIN_DIR)
-	$(CC) -o $@ $(WARNINGS) $(DEBUG) $(OPTIMIZE) $(SRC_DIR)/main.c
+$(BIN_DIR)/$(BIN_NAME): Makefile $(wildcard $(SRC_DIR)/*.c) | $(BIN_DIR)
+	$(CC) -o $@ $(WARNINGS) $(DEBUG) $(OPTIMIZE) $(wildcard $(SRC_DIR)/*.c)
 
 clean:
 	rm -f $(BIN_DIR)/$(BIN_NAME)

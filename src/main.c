@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
+
 #define FILE_NAME "data/library_catalog.csv"
 #define PROG_VER "librlog 0.3"
 #define MAX_LINE_LEN 2560
@@ -254,7 +256,7 @@ sort_books (void)
       num_books_found = 0;
       for (i = 0; i < num_books; i++)
         {
-        if (!strcmp (buffer, books[i].author))
+        if (!strcasecmp (buffer, books[i].author))
             {
               num_books_found++;
               print_book (books[i]);
@@ -287,7 +289,7 @@ sort_books (void)
       num_books_found = 0;
       for (i = 0; i < num_books; i++)
         {
-        if (!strcmp (buffer, books[i].genre))
+        if (!strcasecmp (buffer, books[i].genre))
             {
               num_books_found++;
               print_book (books[i]);
@@ -317,7 +319,7 @@ sort_books (void)
       num_books_found = 0;
       for (i = 0; i < num_books; i++)
         {
-        if (!strcmp (buffer, books[i].publisher))
+        if (!strcasecmp (buffer, books[i].publisher))
             {
               num_books_found++;
               print_book (books[i]);
@@ -347,7 +349,7 @@ sort_books (void)
       num_books_found = 0;
       for (i = 0; i < num_books; i++)
         {
-        if (!strcmp (buffer, books[i].title))
+        if (!strcasecmp (buffer, books[i].title))
             {
               num_books_found++;
               print_book (books[i]);
@@ -377,7 +379,7 @@ sort_books (void)
       num_books_found = 0;
       for (i = 0; i < num_books; i++)
         {
-        if (!strcmp (buffer, books[i].publication_year))
+        if (!strcasecmp (buffer, books[i].publication_year))
             {
               num_books_found++;
               print_book (books[i]);
@@ -437,7 +439,7 @@ find_book (void)
   num_books_found = 0;
   for (i = 0; i < num_books; i++)
     {
-      if (!strcmp (buffer, books[i].title))
+      if (!strcasecmp (buffer, books[i].title))
         {
           num_books_found++;
           print_book (books[i]);
