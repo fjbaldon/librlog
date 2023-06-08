@@ -614,7 +614,7 @@ borrow_book (void)
   else
     strncpy (books[i].checked_out_date, checked_out_date, MAX_FIELD_LEN);
 
-  printf ("Book %s has been borrowed on %s.\n", books[i].title, books[i].return_date);
+  printf ("Book %s has been borrowed on %s.\n", books[i].title, books[i].checked_out_date);
   return 0;
 }
 
