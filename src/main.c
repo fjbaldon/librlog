@@ -764,8 +764,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.title, buffer, MAX_FIELD_LEN - 1);
-  book.title[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.title, books[i].title, MAX_FIELD_LEN);
+  else
+    strncpy (book.title, buffer, MAX_FIELD_LEN);
 
   printf ("Enter book author: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -781,8 +783,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.author, buffer, MAX_FIELD_LEN - 1);
-  book.author[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.author, books[i].author, MAX_FIELD_LEN);
+  else
+    strncpy (book.author, buffer, MAX_FIELD_LEN);
 
   printf ("Enter book publisher: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -798,8 +802,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.publisher, buffer, MAX_FIELD_LEN - 1);
-  book.publisher[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.publisher, books[i].publisher, MAX_FIELD_LEN);
+  else
+    strncpy (book.publisher, buffer, MAX_FIELD_LEN);
 
   printf ("Enter publication year: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -815,8 +821,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.publication_year, buffer, MAX_FIELD_LEN - 1);
-  book.publication_year[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.publication_year, books[i].publication_year, MAX_FIELD_LEN);
+  else
+    strncpy (book.publication_year, buffer, MAX_FIELD_LEN);
 
   printf ("Enter ISBN: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -832,8 +840,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.isbn, buffer, MAX_FIELD_LEN - 1);
-  book.isbn[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.isbn, books[i].isbn, MAX_FIELD_LEN);
+  else
+    strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
   printf ("Enter book accession number: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -849,8 +859,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.accession_num, buffer, MAX_FIELD_LEN - 1);
-  book.accession_num[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.accession_num, books[i].accession_num, MAX_FIELD_LEN);
+  else
+    strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
 
   printf ("Enter genre: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -866,8 +878,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.genre, buffer, MAX_FIELD_LEN - 1);
-  book.genre[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.genre, books[i].genre, MAX_FIELD_LEN);
+  else
+    strncpy (book.genre, buffer, MAX_FIELD_LEN);
 
   printf ("Enter checked out by: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -883,8 +897,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.checked_out_by, buffer, MAX_FIELD_LEN - 1);
-  book.checked_out_by[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.checked_out_by, books[i].checked_out_by, MAX_FIELD_LEN);
+  else
+    strncpy (book.checked_out_by, buffer, MAX_FIELD_LEN);
 
   printf ("Enter checked out date: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -900,8 +916,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.checked_out_date, buffer, MAX_FIELD_LEN - 1);
-  book.checked_out_date[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.checked_out_date, books[i].checked_out_date, MAX_FIELD_LEN);
+  else
+    strncpy (book.checked_out_date, buffer, MAX_FIELD_LEN);
 
   printf ("Enter return date: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -917,8 +935,10 @@ edit_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.return_date, buffer, MAX_FIELD_LEN - 1);
-  book.return_date[MAX_FIELD_LEN - 1] = '\0';
+  if (!strcmp (buffer, ""))
+    strncpy (book.return_date, books[i].return_date, MAX_FIELD_LEN);
+  else
+    strncpy (book.return_date, buffer, MAX_FIELD_LEN);
 
   books[i] = book;
   puts ("Book edited successfully.");
@@ -965,8 +985,7 @@ add_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.title, buffer, MAX_FIELD_LEN - 1);
-  book.title[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.title, buffer, MAX_FIELD_LEN);
 
   printf ("Enter book author: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -982,8 +1001,7 @@ add_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.author, buffer, MAX_FIELD_LEN - 1);
-  book.author[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.author, buffer, MAX_FIELD_LEN);
 
   printf ("Enter book publisher: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -999,8 +1017,7 @@ add_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.publisher, buffer, MAX_FIELD_LEN - 1);
-  book.publisher[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.publisher, buffer, MAX_FIELD_LEN);
 
   printf ("Enter publication year: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -1016,8 +1033,7 @@ add_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.publication_year, buffer, MAX_FIELD_LEN - 1);
-  book.publication_year[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.publication_year, buffer, MAX_FIELD_LEN);
 
   printf ("Enter ISBN: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -1033,8 +1049,7 @@ add_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.isbn, buffer, MAX_FIELD_LEN - 1);
-  book.isbn[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
   printf ("Enter book accession number: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -1050,8 +1065,7 @@ add_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.accession_num, buffer, MAX_FIELD_LEN - 1);
-  book.accession_num[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
 
   printf ("Enter genre: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
@@ -1067,17 +1081,11 @@ add_book (void)
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.genre, buffer, MAX_FIELD_LEN - 1);
-  book.genre[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.genre, buffer, MAX_FIELD_LEN);
 
-  strncpy (book.checked_out_by, "", MAX_FIELD_LEN - 1);
-  book.checked_out_by[MAX_FIELD_LEN - 1] = '\0';
-
-  strncpy (book.checked_out_date, "", MAX_FIELD_LEN - 1);
-  book.checked_out_date[MAX_FIELD_LEN - 1] = '\0';
-
-  strncpy (book.return_date, "", MAX_FIELD_LEN - 1);
-  book.return_date[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (book.checked_out_by, "", MAX_FIELD_LEN);
+  strncpy (book.checked_out_date, "", MAX_FIELD_LEN);
+  strncpy (book.return_date, "", MAX_FIELD_LEN);
 
   memcpy (&books[num_books], &book, sizeof (Book));
   books[num_books].title[MAX_FIELD_LEN - 1] = '\0';
