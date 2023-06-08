@@ -25,7 +25,7 @@
 #include "utils.h"
 
 #define FILE_NAME "data/library_catalog.csv"
-#define PROG_VER "librlog 0.3"
+#define PROG_VER "librlog 0.4"
 #define MAX_LINE_LEN 2560
 #define MAX_FIELD_LEN 256
 #define MAX_NUM_FIELDS 10
@@ -88,8 +88,8 @@ static int   num_books;
  * An integer indicating the maximum number of books that the library can hold.
  *
  * This variable is used to set the initial capacity of the `books` array.
- * It is initialized to a default value at startup and will be updated automatically
- * if the library needs to hold more books.
+ * It is initialized to a default value at startup and will be updated
+ * automatically if the library needs to hold more books.
  */
 static int   max_books;
 
@@ -115,8 +115,7 @@ static int  edit_book                       (void);
 static int  delete_book                     (void);
 static int  borrow_book                     (void);
 static int  return_book                     (void);
-static int  find_book                       (void);
-static int  sort_books                      (void);
+static int  find_books                      (void);
 static int  list_books                      (void);
 static int  print_warranty                  (void);
 static int  print_book                      (const Book  book);
@@ -202,37 +201,35 @@ list_books (void)
 }
 
 /*
- * Function: sort_books
- * ---------------------
- * Sort the books array based on user input
- * and print the details of the matching books to the console.
+ * Function: find_books
+ * --------------------
+ * Find books in the library's collection that match a given search criteria.
  *
- * This function prompts the user to enter a search query
- * and sorts the books array based on the user's input.
- * It then prints the details of the matching books to the console.
+ * This function prompts the user to enter a search criteria from a menu of options,
+ * and then prompts for the specific value to search for.
+ * It then searches the books array for books that match the criteria, and prints them to the console.
  *
- * The user can choose to search for books
- * by title, author, publisher, publication year, or genre.
- * If the user enters an invalid input, the function returns an error code.
+ * If no books are found that match the criteria, a message is printed to the console.
  *
  * returns: An integer indicating the success of the function.
  * If an error occurs, the appropriate error code is returned.
  */
 static int
-sort_books (void)
+find_books (void)
 {
   char c;
   char buffer[MAX_FIELD_LEN];
   int num_books_found, i;
 
-  puts ("Sorting book...");
+  puts ("Finding books...");
   puts ("  a - author");
   puts ("  b - go back");
   puts ("  g - genre");
   puts ("  p - publisher");
   puts ("  t - title");
   puts ("  y - publication year");
-  puts ("> ");
+  printf ("> ");
+
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
   while ((d = getchar ()) != '\n' && d != EOF) {}
@@ -263,10 +260,6 @@ sort_books (void)
               print_book (books[i]);
             }
         }
-      if (num_books_found < 1)
-        puts ("No match found.");
-      else
-        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     case 'b':
@@ -296,10 +289,6 @@ sort_books (void)
               print_book (books[i]);
             }
         }
-      if (num_books_found < 1)
-        puts ("No match found.");
-      else
-        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     case 'p':
@@ -326,10 +315,6 @@ sort_books (void)
               print_book (books[i]);
             }
         }
-      if (num_books_found < 1)
-        puts ("No match found.");
-      else
-        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     case 't':
@@ -356,10 +341,6 @@ sort_books (void)
               print_book (books[i]);
             }
         }
-      if (num_books_found < 1)
-        puts ("No match found.");
-      else
-        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     case 'y':
@@ -386,10 +367,6 @@ sort_books (void)
               print_book (books[i]);
             }
         }
-      if (num_books_found < 1)
-        puts ("No match found.");
-      else
-        printf ("Found %d match/s.\n", num_books_found);
       break;
 
     default:
@@ -397,55 +374,6 @@ sort_books (void)
       return INPUT_ERR;
     }
 
-  return 0;
-}
-
-/*
- * Function: find_book
- * -------------------
- * Find and print the details of the book(s) that match the user's search query.
- *
- * This function prompts the user to enter a book title
- * and searches the books array for titles that match the user's input.
- * It then prints the details of the matching book(s) to the console.
- *
- * If the user's search query does not match any book titles in the array,
- * nothing is printed to the console.
- *
- * returns: An integer indicating the success of the function.
- * If an error occurs, the appropriate error code is returned.
- */
-static int
-find_book (void)
-{
-  char buffer[MAX_FIELD_LEN];
-  int num_books_found, i;
-
-  printf ("Enter book title: ");
-  if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
-    {
-      if (feof (stdin))
-        return EOF_ERR;
-      else
-        {
-          fprintf (stderr, "Error reading from stdin.\n");
-          return IO_ERR;
-        }
-    }
-
-  if (strchr (buffer, '\n') == NULL)
-    while ((d = getchar ()) != '\n' && d != EOF) {}
-
-  buffer[strcspn (buffer, "\n")] = '\0';
-  num_books_found = 0;
-  for (i = 0; i < num_books; i++)
-    {
-      if (!strcasecmp (buffer, books[i].title))
-        {
-          num_books_found++;
-          print_book (books[i]);
-        }
-    }
   if (num_books_found < 1)
     puts ("No match found.");
   else
@@ -695,6 +623,23 @@ delete_book (void)
   return 0;
 }
 
+/*
+ * Function: edit_book
+ * -------------------
+ * Modify the fields of an existing book in the library's collection.
+ *
+ * This function prompts the user to enter an accession number
+ * and searches the books array for a matching book.
+ * If a matching book is found, the user is prompted to enter new values
+ * for each field of the book.
+ * If the user enters a blank line for a field, the original value for that field is kept.
+ *
+ * If the book is not found, an error message is printed to the console
+ * and the function returns successfully.
+ *
+ * returns: An integer indicating the success of the function.
+ * If an error occurs, the appropriate error code is returned.
+ */
 static int
 edit_book (void)
 {
@@ -1370,6 +1315,7 @@ verify_user (void)
   if (!strcmp (stored_pass, entered_pass))
     return 1;
 
+  puts ("Sorry, try again.");
   return 0;
 }
 
@@ -1450,7 +1396,7 @@ main (void)
           break;
 
         case 'f':
-          status = find_book ();
+          status = find_books ();
           break;
 
         case 'h':
@@ -1463,10 +1409,6 @@ main (void)
 
         case 'q':
           goto success;
-
-        case 's':
-          status = sort_books ();
-          break;
 
         case 'r':
           status = return_book ();
