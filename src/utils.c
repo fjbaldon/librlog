@@ -19,6 +19,7 @@
  */
 
 #include <ctype.h>
+#include <time.h>
 
 /*
  * Function: strcasecmp
@@ -58,3 +59,30 @@ strcasecmp (const char *s1,
   return tolower (s1[i]) - tolower (s2[i]);
 }
 
+/* Function: get_current_date
+ * --------------------------
+ * Get the current date in "YYYY-MM-DD" format.
+ *
+ * This function retrieves the current system time
+ * and formats it as a string in "YYYY-MM-DD" format.
+ * The resulting string is stored in the character array
+ * passed as an argument.
+ *
+ * date_string: A character array to store the resulting date string.
+ *              The array should have at least 11 bytes of memory allocated
+ *              to hold the string, including the null terminator character.
+ *
+ * returns:    This function does not return a value. The resulting date
+ *             string is stored in the character array passed as an argument.
+ */
+void
+get_current_date (char *date_string)
+{
+  time_t current_time;
+  struct tm *time_info;
+
+  time (&current_time);
+  time_info = localtime (&current_time);
+
+  strftime (date_string, 11, "%Y-%m-%d", time_info);
+}

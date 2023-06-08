@@ -106,7 +106,7 @@ static int  return_book                     (void);
 static int  find_books                      (void);
 static int  list_books                      (void);
 static int  print_warranty                  (void);
-static int  print_book                      (const Book  book);
+static int  print_book                      (const Book book);
 
 /* Function: print_book
  * --------------------
@@ -179,7 +179,10 @@ list_books (void)
   int i;
 
   for (i = 1; i < num_books; i++)
-    print_book (books[i]);
+    {
+      print_book (books[i]);
+      putchar ('\n');
+    }
 
   return 0;
 }
@@ -334,7 +337,7 @@ find_books (void)
       break;
 
     case 't':
-      printf ("Enter book title: ");
+      printf ("Enter book title (all): ");
       if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
         {
           if (feof (stdin))
@@ -371,7 +374,7 @@ find_books (void)
       break;
 
     case 'y':
-      printf ("Enter publication year: ");
+      printf ("Enter publication year (all): ");
       if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
         {
           if (feof (stdin))
@@ -441,6 +444,7 @@ static int
 return_book (void)
 {
   char accession_num[MAX_FIELD_LEN];
+  char date_now[MAX_FIELD_LEN];
   char return_date[MAX_FIELD_LEN];
   int i;
 
@@ -479,7 +483,8 @@ return_book (void)
       return 0;
     }
 
-  printf ("Enter return date (YYYY-MM-DD): ");
+  get_current_date (date_now);
+  printf ("Enter return date (%s): ", date_now);
   if (fgets (return_date, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -495,12 +500,16 @@ return_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
 
   return_date[strcspn (return_date, "\n")] = '\0';
-  strncpy (books[i].return_date, return_date, MAX_FIELD_LEN);
+
+  if (!strcmp (return_date, ""))
+    strncpy (books[i].return_date, date_now, MAX_FIELD_LEN);
+  else
+    strncpy (books[i].return_date, return_date, MAX_FIELD_LEN);
 
   strncpy (books[i].checked_out_by, "", MAX_FIELD_LEN - 1);
   strncpy (books[i].checked_out_date, "", MAX_FIELD_LEN - 1);
 
-  printf ("Book %s has been returned on %s.\n", books[i].title, return_date);
+  printf ("Book %s has been returned on %s.\n", books[i].title, books[i].return_date);
   return 0;
 }
 
@@ -526,6 +535,7 @@ borrow_book (void)
   int i;
   char accession_num[MAX_FIELD_LEN];
   char checked_out_by[MAX_FIELD_LEN];
+  char date_now[MAX_FIELD_LEN];
   char checked_out_date[MAX_FIELD_LEN];
 
   printf ("Enter accession number: ");
@@ -581,7 +591,8 @@ borrow_book (void)
   checked_out_by[strcspn (checked_out_by, "\n")] = '\0';
   strncpy (books[i].checked_out_by, checked_out_by, MAX_FIELD_LEN);
 
-  printf ("Enter checked out date (YYYY-MM-DD): ");
+  get_current_date (date_now);
+  printf ("Enter checked out date (%s): ", date_now);
   if (fgets (checked_out_date, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -597,9 +608,13 @@ borrow_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
 
   checked_out_date[strcspn (checked_out_date, "\n")] = '\0';
-  strncpy (books[i].checked_out_date, checked_out_date, MAX_FIELD_LEN);
 
-  puts ("Book borrowed successfully.");
+  if (!strcmp (checked_out_date, ""))
+    strncpy (books[i].checked_out_date, date_now, MAX_FIELD_LEN);
+  else
+    strncpy (books[i].checked_out_date, checked_out_date, MAX_FIELD_LEN);
+
+  printf ("Book %s has been borrowed on %s.\n", books[i].title, books[i].return_date);
   return 0;
 }
 
@@ -1083,12 +1098,19 @@ access_num_not_unique:
 
   buffer[strcspn(buffer, "\n")] = '\0';
 
-  for (i = 1; i < num_books; i++)
+  if (!strcmp (buffer, ""))
     {
-      if (!strcmp (buffer, books[i].accession_num))
+      sprintf (buffer, "%d", num_books);
+    }
+  else
+    {
+      for (i = 1; i < num_books; i++)
         {
-          fprintf (stderr, "Error: The entered accession number is not unique.\n");
-          goto access_num_not_unique;
+          if (!strcmp (buffer, books[i].accession_num))
+            {
+              fprintf (stderr, "Error: The entered accession number is not unique.\n");
+              goto access_num_not_unique;
+            }
         }
     }
   strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
