@@ -236,7 +236,7 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 0; i < num_books; i++)
+      for (i = 1; i < num_books; i++)
         {
         if (!strcasecmp (buffer, books[i].author))
             {
@@ -265,7 +265,7 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 0; i < num_books; i++)
+      for (i = 1; i < num_books; i++)
         {
         if (!strcasecmp (buffer, books[i].genre))
             {
@@ -291,7 +291,7 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 0; i < num_books; i++)
+      for (i = 1; i < num_books; i++)
         {
         if (!strcasecmp (buffer, books[i].publisher))
             {
@@ -317,7 +317,7 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 0; i < num_books; i++)
+      for (i = 1; i < num_books; i++)
         {
         if (!strcasecmp (buffer, books[i].title))
             {
@@ -343,7 +343,7 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 0; i < num_books; i++)
+      for (i = 1; i < num_books; i++)
         {
         if (!strcasecmp (buffer, books[i].publication_year))
             {
@@ -406,7 +406,7 @@ return_book (void)
 
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 0; i < num_books; i++)
+  for (i = 1; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
@@ -490,7 +490,7 @@ borrow_book (void)
 
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 0; i < num_books; i++)
+  for (i = 1; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
@@ -587,7 +587,7 @@ delete_book (void)
 
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 0; i < num_books; i++)
+  for (i = 1; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
@@ -665,7 +665,7 @@ edit_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 0; i < num_books; i++)
+  for (i = 1; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
