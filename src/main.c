@@ -129,7 +129,6 @@ print_book (const Book book)
   printf ("Checked Out By:   %s\n", book.checked_out_by);
   printf ("Checked Out Date: %s\n", book.checked_out_date);
   printf ("Return Date:      %s\n", book.return_date);
-  putchar ('\n');
 
   return 0;
 }
@@ -221,7 +220,7 @@ find_books (void)
   switch (c)
     {
     case 'a':
-      printf ("Enter book author: ");
+      printf ("Enter book author (all): ");
       if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
         {
           if (feof (stdin))
@@ -236,12 +235,23 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 1; i < num_books; i++)
+      if (!strcmp (buffer, ""))
         {
-        if (!strcasecmp (buffer, books[i].author))
+          for (i = 1; i < num_books; i++)
             {
               num_books_found++;
-              print_book (books[i]);
+              printf ("%s\n", books[i].author);
+            }
+        }
+      else
+        {
+          for (i = 1; i < num_books; i++)
+            {
+              if (!strcasecmp (buffer, books[i].author))
+                {
+                  num_books_found++;
+                  print_book (books[i]);
+                }
             }
         }
       break;
@@ -250,7 +260,7 @@ find_books (void)
       return 0;
 
     case 'g':
-      printf ("Enter book genre: ");
+      printf ("Enter book genre (all): ");
       if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
         {
           if (feof (stdin))
@@ -265,18 +275,29 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 1; i < num_books; i++)
+      if (!strcmp (buffer, ""))
         {
-        if (!strcasecmp (buffer, books[i].genre))
+          for (i = 1; i < num_books; i++)
             {
               num_books_found++;
-              print_book (books[i]);
+              printf ("%s\n", books[i].genre);
+            }
+        }
+      else
+        {
+          for (i = 1; i < num_books; i++)
+            {
+              if (!strcasecmp (buffer, books[i].genre))
+                {
+                  num_books_found++;
+                  print_book (books[i]);
+                }
             }
         }
       break;
 
     case 'p':
-      printf ("Enter book publisher: ");
+      printf ("Enter book publisher (all): ");
       if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
         {
           if (feof (stdin))
@@ -291,12 +312,23 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 1; i < num_books; i++)
+      if (!strcmp (buffer, ""))
         {
-        if (!strcasecmp (buffer, books[i].publisher))
+          for (i = 1; i < num_books; i++)
             {
               num_books_found++;
-              print_book (books[i]);
+              printf ("%s\n", books[i].publisher);
+            }
+        }
+      else
+        {
+          for (i = 1; i < num_books; i++)
+            {
+              if (!strcasecmp (buffer, books[i].publisher))
+                {
+                  num_books_found++;
+                  print_book (books[i]);
+                }
             }
         }
       break;
@@ -317,12 +349,23 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 1; i < num_books; i++)
+      if (!strcmp (buffer, ""))
         {
-        if (!strcasecmp (buffer, books[i].title))
+          for (i = 1; i < num_books; i++)
             {
               num_books_found++;
-              print_book (books[i]);
+              printf ("%s\n", books[i].title);
+            }
+        }
+      else
+        {
+          for (i = 1; i < num_books; i++)
+            {
+              if (!strcasecmp (buffer, books[i].title))
+                {
+                  num_books_found++;
+                  print_book (books[i]);
+                }
             }
         }
       break;
@@ -343,12 +386,23 @@ find_books (void)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
       num_books_found = 0;
-      for (i = 1; i < num_books; i++)
+      if (!strcmp (buffer, ""))
         {
-        if (!strcasecmp (buffer, books[i].publication_year))
+          for (i = 1; i < num_books; i++)
             {
               num_books_found++;
-              print_book (books[i]);
+              printf ("%s\n", books[i].publication_year);
+            }
+        }
+      else
+        {
+          for (i = 1; i < num_books; i++)
+            {
+              if (!strcasecmp (buffer, books[i].publication_year))
+                {
+                  num_books_found++;
+                  print_book (books[i]);
+                }
             }
         }
       break;
@@ -358,6 +412,7 @@ find_books (void)
       return INPUT_ERR;
     }
 
+  putchar ('\n');
   if (num_books_found < 1)
     puts ("No match found.");
   else
