@@ -33,31 +33,22 @@
 #define INPUT_ERR -2
 #define IO_ERR -3
 
+/* A struct representing a book in a library. */
 typedef struct
 {
-  char title[MAX_FIELD_LEN];
-  char author[MAX_FIELD_LEN];
-  char publisher[MAX_FIELD_LEN];
-  char publication_year[MAX_FIELD_LEN];
-  char isbn[MAX_FIELD_LEN];
-  char accession_num[MAX_FIELD_LEN];
-  char genre[MAX_FIELD_LEN];
-  char checked_out_by[MAX_FIELD_LEN];
-  char checked_out_date[MAX_FIELD_LEN];
-  char return_date[MAX_FIELD_LEN];
+  char title[MAX_FIELD_LEN];            /* The title of the book. */
+  char author[MAX_FIELD_LEN];           /* The author of the book. */
+  char publisher[MAX_FIELD_LEN];        /* The publisher of the book. */
+  char publication_year[MAX_FIELD_LEN]; /* The year the book was published. */
+  char isbn[MAX_FIELD_LEN];             /* The International Standard Book Number (ISBN) of the book. */
+  char accession_num[MAX_FIELD_LEN];    /* The accession number of the book. */
+  char genre[MAX_FIELD_LEN];            /* The genre of the book. */
+  char checked_out_by[MAX_FIELD_LEN];   /* The name of the borrower who has checked out the book. */
+  char checked_out_date[MAX_FIELD_LEN]; /* The date the book was checked out. */
+  char return_date[MAX_FIELD_LEN];      /* The date the book is due to be returned. */
 } Book;
 
-enum {
-  TITLE,
-  AUTHOR,
-  PUBLISHER,
-  PUBLICATION_YEAR,
-  ACCESSION_NUM,
-  GENRE,
-};
-
-/*
- * Variable: books
+/* Variable: books
  * ---------------
  * A pointer to an array of Book structs.
  *
@@ -69,8 +60,7 @@ enum {
  */
 static Book *books;
 
-/*
- * Variable: num_books
+/* Variable: num_books
  * -------------------
  * An integer indicating the number of books in the library's collection.
  *
@@ -82,8 +72,7 @@ static Book *books;
  */
 static int   num_books;
 
-/*
- * Variable: max_books
+/* Variable: max_books
  * -------------------
  * An integer indicating the maximum number of books that the library can hold.
  *
@@ -93,8 +82,7 @@ static int   num_books;
  */
 static int   max_books;
 
-/*
- * Variable: d
+/* Variable: d
  * -----------
  * An integer used to discard excess input characters from stdin.
  *
@@ -120,8 +108,7 @@ static int  list_books                      (void);
 static int  print_warranty                  (void);
 static int  print_book                      (const Book  book);
 
-/*
- * Function: print_book
+/* Function: print_book
  * --------------------
  * Print the details of a book to the console in a formatted manner.
  *
@@ -147,8 +134,7 @@ print_book (const Book book)
   return 0;
 }
 
-/*
- * Function: print_warranty
+/* Function: print_warranty
  * ------------------------
  * Print the program's warranty and licensing information to the console.
  *
@@ -181,8 +167,7 @@ print_warranty (void)
   return 0;
 }
 
-/*
- * Function: list_books
+/* Function: list_books
  * ---------------------
  * Print the details of all books in the books array
  * to the console in a formatted manner.
@@ -200,8 +185,7 @@ list_books (void)
   return 0;
 }
 
-/*
- * Function: find_books
+/* Function: find_books
  * --------------------
  * Find books in the library's collection that match a given search criteria.
  *
@@ -370,7 +354,7 @@ find_books (void)
       break;
 
     default:
-      fprintf (stderr, "Error invalid input.\n");
+      fprintf (stderr, "Error invalid input choice.\n");
       return INPUT_ERR;
     }
 
@@ -382,8 +366,7 @@ find_books (void)
   return 0;
 }
 
-/*
- * Function: return_book
+/* Function: return_book
  * ---------------------
  * Return a book to the library.
  *
@@ -435,7 +418,7 @@ return_book (void)
       return 0;
     }
 
-  if (strcmp (books[i].checked_out_by, "") == 0)
+  if (!strcmp (books[i].checked_out_by, ""))
     {
       puts ("Book was already returned.");
       return 0;
@@ -457,22 +440,16 @@ return_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
 
   return_date[strcspn (return_date, "\n")] = '\0';
+  strncpy (books[i].return_date, return_date, MAX_FIELD_LEN);
 
   strncpy (books[i].checked_out_by, "", MAX_FIELD_LEN - 1);
-  books[i].checked_out_by[MAX_FIELD_LEN - 1] = '\0';
-
   strncpy (books[i].checked_out_date, "", MAX_FIELD_LEN - 1);
-  books[i].checked_out_date[MAX_FIELD_LEN - 1] = '\0';
-
-  strncpy (books[i].return_date, return_date, MAX_FIELD_LEN - 1);
-  books[i].return_date[MAX_FIELD_LEN - 1] = '\0';
 
   printf ("Book %s has been returned on %s.\n", books[i].title, return_date);
   return 0;
 }
 
-/*
- * Function: borrow_book
+/* Function: borrow_book
  * ---------------------
  * Borrow a book from the library and update the book's status in the books array.
  *
@@ -507,8 +484,10 @@ borrow_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
   for (i = 0; i < num_books; i++)
@@ -523,13 +502,13 @@ borrow_book (void)
       return 0;
     }
 
-  if (strcmp (books[i].checked_out_by, "") != 0)
+  if (strcmp (books[i].checked_out_by, ""))
     {
       puts ("Book is already checked out.");
       return 0;
     }
 
-  printf ("Enter name: ");
+  printf ("Enter borrower's name: ");
   if (fgets (checked_out_by, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -540,13 +519,14 @@ borrow_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (checked_out_by, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-  checked_out_by[strcspn (checked_out_by, "\n")] = '\0';
-  strncpy (books[i].checked_out_by, checked_out_by, MAX_FIELD_LEN - 1);
-  books[i].checked_out_by[MAX_FIELD_LEN - 1] = '\0';
 
-  printf ("Enter the date you are borrowing the book (YYYY-MM-DD): ");
+  checked_out_by[strcspn (checked_out_by, "\n")] = '\0';
+  strncpy (books[i].checked_out_by, checked_out_by, MAX_FIELD_LEN);
+
+  printf ("Enter checked out date (YYYY-MM-DD): ");
   if (fgets (checked_out_date, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -557,18 +537,18 @@ borrow_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (checked_out_date, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   checked_out_date[strcspn (checked_out_date, "\n")] = '\0';
-  strncpy (books[i].checked_out_date, checked_out_date, MAX_FIELD_LEN -1);
-  books[i].checked_out_date[MAX_FIELD_LEN - 1] = '\0';
+  strncpy (books[i].checked_out_date, checked_out_date, MAX_FIELD_LEN);
 
   puts ("Book borrowed successfully.");
   return 0;
 }
 
-/*
- * Function: delete_book
+/* Function: delete_book
  * ---------------------
  * Delete a book from the library's collection.
  *
@@ -587,6 +567,7 @@ static int
 delete_book (void)
 {
   char accession_num[MAX_FIELD_LEN];
+  char c;
   int i, j;
 
   printf ("Enter accession number: ");
@@ -600,8 +581,10 @@ delete_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
   for (i = 0; i < num_books; i++)
@@ -616,15 +599,32 @@ delete_book (void)
       return 0;
     }
 
+  print_book (books[i]);
+  printf ("Are you sure you want to delete this book? [y/n]: ");
+  if (scanf (" %c", &c) == EOF)
+    return EOF_ERR;
+  while ((d = getchar ()) != '\n' && d != EOF) {}
+
+  if (c == 'n')
+    {
+      puts ("Operation canceled.");
+      return 0;;
+    }
+  else if (c != 'y' && c != 'n')
+    {
+      puts ("Invalid input choice. Canceling operation.");
+      return INPUT_ERR;
+    }
+
   for (j = i; j < num_books - 1; j++)
     books[j] = books[j + 1];
+
   num_books--;
   puts ("Book deleted.");
   return 0;
 }
 
-/*
- * Function: edit_book
+/* Function: edit_book
  * -------------------
  * Modify the fields of an existing book in the library's collection.
  *
@@ -678,7 +678,7 @@ edit_book (void)
     }
 
   print_book (books[i]);
-  printf ("Continue? (y/n): ");
+  printf ("Do you want to continue editing? [y/n]: ");
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
   while ((d = getchar ()) != '\n' && d != EOF) {}
@@ -694,7 +694,6 @@ edit_book (void)
       return INPUT_ERR;
     }
 
-  printf ("\nLeave blank if you want to leave as is.\n");
   printf ("Enter book title (%s): ", books[i].title);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -714,7 +713,7 @@ edit_book (void)
   else
     strncpy (book.title, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter book author: ");
+  printf ("Enter book author (%s): ", books[i].author);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -733,7 +732,7 @@ edit_book (void)
   else
     strncpy (book.author, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter book publisher: ");
+  printf ("Enter book publisher (%s): ", books[i].publisher);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -752,7 +751,7 @@ edit_book (void)
   else
     strncpy (book.publisher, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter publication year: ");
+  printf ("Enter publication year (%s): ", books[i].publication_year);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -771,7 +770,7 @@ edit_book (void)
   else
     strncpy (book.publication_year, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter ISBN: ");
+  printf ("Enter book ISBN (%s): ", books[i].isbn);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -790,7 +789,7 @@ edit_book (void)
   else
     strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter book accession number: ");
+  printf ("Enter book accession number (%s): ", books[i].accession_num);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -809,7 +808,7 @@ edit_book (void)
   else
     strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter genre: ");
+  printf ("Enter genre (%s): ", books[i].genre);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -828,7 +827,7 @@ edit_book (void)
   else
     strncpy (book.genre, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter checked out by: ");
+  printf ("Enter checked out by (%s): ", books[i].checked_out_by);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -847,7 +846,7 @@ edit_book (void)
   else
     strncpy (book.checked_out_by, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter checked out date: ");
+  printf ("Enter checked out date (%s): ", books[i].checked_out_date);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -866,7 +865,7 @@ edit_book (void)
   else
     strncpy (book.checked_out_date, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter return date: ");
+  printf ("Enter return date (%s): ", books[i].return_date);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -890,8 +889,7 @@ edit_book (void)
   return 0;
 }
 
-/*
- * Function: add_book
+/* Function: add_book
  * ------------------
  * Add a book to the library's collection.
  *
@@ -909,11 +907,17 @@ add_book (void)
 {
   char buffer[MAX_FIELD_LEN];
   Book book;
+  int i;
 
   if (num_books >= max_books)
     {
       max_books += 500;
-      books = realloc (books, sizeof (book) * max_books);
+      books = (Book *) realloc (books, sizeof (Book) * max_books);
+      if (books == NULL)
+        {
+          fprintf (stderr, "Failed to reallocate memory.\n");
+          return IO_ERR;
+        }
     }
 
   printf ("Enter book title: ");
@@ -927,8 +931,10 @@ add_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   buffer[strcspn(buffer, "\n")] = '\0';
   strncpy (book.title, buffer, MAX_FIELD_LEN);
 
@@ -943,8 +949,10 @@ add_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   buffer[strcspn(buffer, "\n")] = '\0';
   strncpy (book.author, buffer, MAX_FIELD_LEN);
 
@@ -959,8 +967,10 @@ add_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   buffer[strcspn(buffer, "\n")] = '\0';
   strncpy (book.publisher, buffer, MAX_FIELD_LEN);
 
@@ -975,12 +985,14 @@ add_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   buffer[strcspn(buffer, "\n")] = '\0';
   strncpy (book.publication_year, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter ISBN: ");
+  printf ("Enter book ISBN: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -991,12 +1003,15 @@ add_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   buffer[strcspn(buffer, "\n")] = '\0';
   strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter book accession number: ");
+access_num_not_unique:
+  printf ("Enter book accession number (%d): ", num_books);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -1007,12 +1022,23 @@ add_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   buffer[strcspn(buffer, "\n")] = '\0';
+
+  for (i = 1; i < num_books; i++)
+    {
+      if (!strcmp (buffer, books[i].accession_num))
+        {
+          fprintf (stderr, "Error: The entered accession number is not unique.\n");
+          goto access_num_not_unique;
+        }
+    }
   strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter genre: ");
+  printf ("Enter book genre: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -1023,14 +1049,16 @@ add_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
+
   buffer[strcspn(buffer, "\n")] = '\0';
   strncpy (book.genre, buffer, MAX_FIELD_LEN);
 
-  strncpy (book.checked_out_by, "", MAX_FIELD_LEN);
-  strncpy (book.checked_out_date, "", MAX_FIELD_LEN);
-  strncpy (book.return_date, "", MAX_FIELD_LEN);
+  strncpy (book.checked_out_by, "", MAX_FIELD_LEN - 1);
+  strncpy (book.checked_out_date, "", MAX_FIELD_LEN - 1);
+  strncpy (book.return_date, "", MAX_FIELD_LEN - 1);
 
   memcpy (&books[num_books], &book, sizeof (Book));
   books[num_books].title[MAX_FIELD_LEN - 1] = '\0';
@@ -1045,11 +1073,11 @@ add_book (void)
   books[num_books].return_date[MAX_FIELD_LEN - 1] = '\0';
 
   num_books++;
+  puts ("Book added successfully.");
   return 0;
 }
 
-/*
- * Function: save_catalog
+/* Function: save_catalog
  * ----------------------
  * Save the library's collection to a file.
  *
@@ -1097,8 +1125,7 @@ save_catalog (void)
   return 0;
 }
 
-/*
- * Function: print_help
+/* Function: print_help
  * --------------------
  * Print a help message to the console.
  *
@@ -1115,19 +1142,17 @@ print_help (void)
   puts (" b - borrow book");
   puts (" d - delete book");
   puts (" e - edit book");
-  puts (" f - find book");
+  puts (" f - find books");
   puts (" h - show program help");
   puts (" l - list books");
   puts (" q - quit program");
   puts (" r - return book");
-  puts (" s - sort books");
   puts (" w - show program warranty");
 
   return 0;
 }
 
-/*
- * Function: print_info
+/* Function: print_info
  * --------------------
  * Print information about the program to the console.
  *
@@ -1148,8 +1173,7 @@ print_info (void)
   return 0;
 }
 
-/*
- * Function: load_catalog
+/* Function: load_catalog
  * ----------------------
  * Load the library's collection from a file.
  *
@@ -1185,7 +1209,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].title, field, MAX_FIELD_LEN - 1);
-          books[num_books].title[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1193,7 +1216,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].author, field, MAX_FIELD_LEN - 1);
-          books[num_books].author[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1201,7 +1223,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].publisher, field, MAX_FIELD_LEN - 1);
-          books[num_books].publisher[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1209,7 +1230,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].publication_year, field, MAX_FIELD_LEN - 1);
-          books[num_books].publication_year[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1217,7 +1237,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].isbn, field, MAX_FIELD_LEN - 1);
-          books[num_books].isbn[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1225,7 +1244,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].accession_num, field, MAX_FIELD_LEN - 1);
-          books[num_books].accession_num[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1233,7 +1251,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].genre, field, MAX_FIELD_LEN - 1);
-          books[num_books].genre[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1241,7 +1258,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].checked_out_by, field, MAX_FIELD_LEN - 1);
-          books[num_books].checked_out_by[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1249,7 +1265,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].checked_out_date, field, MAX_FIELD_LEN - 1);
-          books[num_books].checked_out_date[MAX_FIELD_LEN - 1] = '\0';
         }
 
       field = strtok (NULL, ",");
@@ -1257,7 +1272,6 @@ load_catalog (void)
         {
           field[strcspn (field, "\n")] = '\0';
           strncpy (books[num_books].return_date, field, MAX_FIELD_LEN - 1);
-          books[num_books].return_date[MAX_FIELD_LEN - 1] = '\0';
         }
 
       num_books++;
@@ -1274,8 +1288,7 @@ load_catalog (void)
   return num_books;
 }
 
-/*
- * Function: verify_user
+/* Function: verify_user
  * ---------------------
  * Verify the user's identity.
  *
@@ -1319,8 +1332,7 @@ verify_user (void)
   return 0;
 }
 
-/*
- * Function: main
+/* Function: main
  * --------------
  * The main function of the library management program.
  *
@@ -1345,7 +1357,7 @@ main (void)
   books = (Book *) malloc (sizeof (Book) * max_books);
   if (books == NULL)
     {
-      fprintf (stderr, "Error failed to allocate memory.\n");
+      fprintf (stderr, "Failed to allocate memory.\n");
       return EXIT_FAILURE;
     }
 
@@ -1419,7 +1431,7 @@ main (void)
           break;
 
         default:
-          fprintf (stderr, "Error invalid input. Type 'h' for help.\n");
+          fprintf (stderr, "Invalid input. Type 'h' for help.\n");
           continue;
         }
 
@@ -1438,7 +1450,7 @@ main (void)
           goto failure;
 
         default:
-          fprintf (stderr, "Invalid status code.\n");
+          fprintf (stderr, "Unexpected status code.\n");
           continue;
         }
     }
