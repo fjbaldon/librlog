@@ -179,7 +179,7 @@ list_books (void)
   int i, num_books_found;
 
   num_books_found = 0;
-  for (i = 1; i < num_books; i++)
+  for (i = 0; i < num_books; i++)
     {
       num_books_found++;
       print_book (books[i]);
@@ -245,7 +245,7 @@ find_books (void)
       num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               num_books_found++;
               printf ("%s\n", books[i].author);
@@ -253,7 +253,7 @@ find_books (void)
         }
       else
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               if (!strcasecmp (buffer, books[i].author))
                 {
@@ -285,7 +285,7 @@ find_books (void)
       num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               num_books_found++;
               printf ("%s\n", books[i].genre);
@@ -293,7 +293,7 @@ find_books (void)
         }
       else
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               if (!strcasecmp (buffer, books[i].genre))
                 {
@@ -322,7 +322,7 @@ find_books (void)
       num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               num_books_found++;
               printf ("%s\n", books[i].publisher);
@@ -330,7 +330,7 @@ find_books (void)
         }
       else
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               if (!strcasecmp (buffer, books[i].publisher))
                 {
@@ -359,7 +359,7 @@ find_books (void)
       num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               num_books_found++;
               printf ("%s\n", books[i].title);
@@ -367,7 +367,7 @@ find_books (void)
         }
       else
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               if (!strcasecmp (buffer, books[i].title))
                 {
@@ -396,7 +396,7 @@ find_books (void)
       num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               num_books_found++;
               printf ("%s\n", books[i].publication_year);
@@ -404,7 +404,7 @@ find_books (void)
         }
       else
         {
-          for (i = 1; i < num_books; i++)
+          for (i = 0; i < num_books; i++)
             {
               if (!strcasecmp (buffer, books[i].publication_year))
                 {
@@ -470,7 +470,7 @@ return_book (void)
 
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 1; i < num_books; i++)
+  for (i = 0; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
@@ -560,7 +560,7 @@ borrow_book (void)
 
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 1; i < num_books; i++)
+  for (i = 0; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
@@ -662,7 +662,7 @@ delete_book (void)
 
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 1; i < num_books; i++)
+  for (i = 0; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
@@ -740,7 +740,7 @@ edit_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
-  for (i = 1; i < num_books; i++)
+  for (i = 0; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
         break;
@@ -1109,7 +1109,7 @@ access_num_not_unique:
     }
   else
     {
-      for (i = 1; i < num_books; i++)
+      for (i = 0; i < num_books; i++)
         {
           if (!strcmp (buffer, books[i].accession_num))
             {
@@ -1188,7 +1188,7 @@ save_catalog (void)
 
   fprintf (fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
 
-  for (i = 1; i < num_books; i++)
+  for (i = 0; i < num_books; i++)
     {
       fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
               books[i].title,
@@ -1289,6 +1289,15 @@ load_catalog (void)
       fclose (fp);
       if ((fp = fopen (FILE_NAME, "r")) == NULL)
         fprintf (stderr, "Error reading newly created catalog. Quitting..\n");
+    }
+
+  if (fgets (line, MAX_LINE_LEN, fp) != NULL)
+    {
+      if (strcmp (line, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n"))
+        {
+          fprintf (stderr, "Error invalid  header. Quitting..\n");
+          return IO_ERR;
+        }
     }
 
   num_books = 0;
