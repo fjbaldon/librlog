@@ -176,13 +176,18 @@ print_warranty (void)
 static int
 list_books (void)
 {
-  int i;
+  int i, num_books_found;
 
+  num_books_found = 0;
   for (i = 1; i < num_books; i++)
     {
+      num_books_found++;
       print_book (books[i]);
       putchar ('\n');
     }
+
+  if (num_books_found < 1)
+    puts ("Empty library :/");
 
   return 0;
 }
@@ -1274,14 +1279,16 @@ load_catalog (void)
   fp = fopen (FILE_NAME, "r");
   if (fp == NULL)
     {
-      fprintf (stderr, "Error loading catalog.\n");
-      fp = fopen (FILE_NAME, "w+");
+      fp = fopen (FILE_NAME, "w");
       if (fp == NULL)
         {
           fprintf (stderr, "Error creating new catalog. Quitting..\n");
           return IO_ERR;
         }
       fprintf (fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
+      fclose (fp);
+      if (fopen (FILE_NAME, "r") == NULL)
+        fprintf (stderr, "Error reading newly created catalog. Quitting..\n");
     }
 
   num_books = 0;
