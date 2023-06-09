@@ -45,7 +45,7 @@ To install the `librlog` program, follow these steps:
    ```
 4. Run the program by running the following command:
    ```
-   ./bin/librlog
+   make run
    ```
 5. (Optional) To remove the compiled binary file, run the following command:
    ```
@@ -135,13 +135,13 @@ If you would like to contribute to any of these issues, please comment on the is
 
 ## Credits
 
-- Francis John Baldon    (@fjbaldon): Lead Developer
-- Jaycho Carido          (): Contributer
-- Carl James Lopez       (): Contributer
-- Kyte Aleszandrah Orion (): Contributer
-- Julie Mae Catigum      (): Contributer
-- Regine Ilka Ofamen     (): Contributer
-- Reign Alger Ofamen     (): Contributer
+- Francis John Baldon @fjbaldon : Lead Developer
+- Jaycho Carido @mojaycbug      : Contributer
+- Carl James Lopez              : Contributer
+- Kyte Aleszandrah Orion        : Contributer
+- Julie Mae Catigum             : Contributer
+- Regine Ilka Ofamen            : Contributer
+- Reign Alger Ofamen            : Contributer
 
 Finally, we would like to thank our users and anyone else who has supported the project in any way. We appreciate your feedback and contributions, and we will continue to work hard to make this project the best it can be.
 

@@ -23,6 +23,6 @@
 
 int  strcasecmp       (const char *s1,
                        const char *s2);
-void get_current_date (      char *date_string);
+void get_current_date (char       *date_string);
 
 #endif
