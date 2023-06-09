@@ -1287,7 +1287,7 @@ load_catalog (void)
         }
       fprintf (fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
       fclose (fp);
-      if ((fp = fopen (FILE_NAME, "r")) == NULL)
+      if (fopen (FILE_NAME, "r") == NULL)
         fprintf (stderr, "Error reading newly created catalog. Quitting..\n");
     }
 
