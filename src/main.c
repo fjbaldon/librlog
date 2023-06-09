@@ -188,6 +188,8 @@ list_books (void)
 
   if (num_books_found < 1)
     puts ("Empty library :/");
+  else
+    printf ("Found %d books.\n", num_books);
 
   return 0;
 }
