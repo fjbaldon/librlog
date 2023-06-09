@@ -1088,7 +1088,7 @@ add_book (void)
   strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
 access_num_not_unique:
-  printf ("Enter book accession number (%d): ", num_books);
+  printf ("Enter book accession number (%d): ", num_books + 1);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -1107,7 +1107,7 @@ access_num_not_unique:
 
   if (!strcmp (buffer, ""))
     {
-      sprintf (buffer, "%d", num_books);
+      sprintf (buffer, "%d", num_books + 1);
     }
   else
     {
