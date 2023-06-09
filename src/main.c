@@ -1275,7 +1275,13 @@ load_catalog (void)
   if (fp == NULL)
     {
       fprintf (stderr, "Error loading catalog.\n");
-      return IO_ERR;
+      fp = fopen (FILE_NAME, "w+");
+      if (fp == NULL)
+        {
+          fprintf (stderr, "Error creating new catalog. Quitting..\n");
+          return IO_ERR;
+        }
+      fprintf (fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
     }
 
   num_books = 0;
