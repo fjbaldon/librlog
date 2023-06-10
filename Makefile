@@ -19,6 +19,8 @@ clean:
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
+all: clean $(BIN_DIR)/$(BIN_NAME)
+
 # Builder will call this to install the application before running.
 install:
 	echo "Installing is not supported"
