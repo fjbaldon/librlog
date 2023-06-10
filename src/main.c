@@ -580,6 +580,7 @@ borrow_book (void)
       return 0;
     }
 
+checked_out_by_invalid:
   printf ("Enter borrower's name: ");
   if (fgets (checked_out_by, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -596,7 +597,14 @@ borrow_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
 
   checked_out_by[strcspn (checked_out_by, "\n")] = '\0';
-  strncpy (books[i].checked_out_by, checked_out_by, MAX_FIELD_LEN);
+
+  if (!strcmp (checked_out_date, ""))
+    {
+      fprintf (stderr, "Invalid name. Try again.");
+      goto checked_out_by_invalid;
+    }
+  else
+    strncpy (books[i].checked_out_by, checked_out_by, MAX_FIELD_LEN);
 
   get_current_date (date_now);
   printf ("Enter checked out date (%s): ", date_now);
