@@ -1474,7 +1474,7 @@ main (void)
       else
         continue;
     }
-  system ("clear");
+  system ("tput clear");
   print_info ();
 
   num_books = load_catalog ();
