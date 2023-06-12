@@ -598,7 +598,7 @@ checked_out_by_invalid:
 
   checked_out_by[strcspn (checked_out_by, "\n")] = '\0';
 
-  if (!strcmp (checked_out_date, ""))
+  if (!strcmp (checked_out_by, ""))
     {
       fprintf (stderr, "Invalid name. Try again.");
       goto checked_out_by_invalid;
