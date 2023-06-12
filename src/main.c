@@ -25,7 +25,7 @@
 #include "utils.h"
 
 #define FILE_NAME "data/library_catalog.csv"
-#define PROG_VER "librlog 0.4"
+#define PROG_VER "librlog 0.5"
 #define MAX_LINE_LEN 2560
 #define MAX_FIELD_LEN 256
 #define MAX_NUM_FIELDS 10
@@ -214,7 +214,7 @@ find_books (void)
   char buffer[MAX_FIELD_LEN];
   int num_books_found, i;
 
-  puts ("Finding books...");
+  puts ("Finding books..");
   puts ("  a - author");
   puts ("  b - go back");
   puts ("  g - genre");
@@ -455,6 +455,8 @@ return_book (void)
   char return_date[MAX_FIELD_LEN];
   int i;
 
+  puts ("Returning book..");
+GET_ACCESSION_NUM:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -469,8 +471,13 @@ return_book (void)
 
   if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   accession_num[strcspn (accession_num, "\n")] = '\0';
+
+  if (!strcmp (accession_num, ""))
+    {
+      fprintf (stderr, "Invalid accession number. Try again.\n");
+      goto GET_ACCESSION_NUM;
+    }
 
   for (i = 0; i < num_books; i++)
     {
@@ -505,7 +512,6 @@ return_book (void)
 
   if (strchr (return_date, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   return_date[strcspn (return_date, "\n")] = '\0';
 
   if (!strcmp (return_date, ""))
@@ -545,6 +551,8 @@ borrow_book (void)
   char date_now[MAX_FIELD_LEN];
   char checked_out_date[MAX_FIELD_LEN];
 
+  puts ("Borrowing book..");
+GET_ACCESSION_NUM:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) ==  NULL)
     {
@@ -559,8 +567,13 @@ borrow_book (void)
 
   if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   accession_num[strcspn (accession_num, "\n")] = '\0';
+
+  if (!strcmp (accession_num, ""))
+    {
+      fprintf (stderr, "Invalid accession number. Try again.\n");
+      goto GET_ACCESSION_NUM;
+    }
 
   for (i = 0; i < num_books; i++)
     {
@@ -595,12 +608,11 @@ checked_out_by_invalid:
 
   if (strchr (checked_out_by, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   checked_out_by[strcspn (checked_out_by, "\n")] = '\0';
 
   if (!strcmp (checked_out_by, ""))
     {
-      fprintf (stderr, "Invalid name. Try again.");
+      fprintf (stderr, "Invalid name. Try again.\n");
       goto checked_out_by_invalid;
     }
   else
@@ -621,7 +633,6 @@ checked_out_by_invalid:
 
   if (strchr (checked_out_date, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   checked_out_date[strcspn (checked_out_date, "\n")] = '\0';
 
   if (!strcmp (checked_out_date, ""))
@@ -655,6 +666,8 @@ delete_book (void)
   char c;
   int i, j;
 
+  puts ("Deleting book..");
+GET_ACCESSION_NUM:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -669,8 +682,13 @@ delete_book (void)
 
   if (strchr (accession_num, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   accession_num[strcspn (accession_num, "\n")] = '\0';
+
+  if (!strcmp (accession_num, ""))
+    {
+      fprintf (stderr, "Invalid accession number. Try again.\n");
+      goto GET_ACCESSION_NUM;
+    }
 
   for (i = 0; i < num_books; i++)
     {
@@ -685,6 +703,7 @@ delete_book (void)
     }
 
   print_book (books[i]);
+GET_DELETE_CONFIRMATION:
   printf ("Are you sure you want to delete this book? [y/n]: ");
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
@@ -697,8 +716,8 @@ delete_book (void)
     }
   else if (c != 'y' && c != 'n')
     {
-      puts ("Invalid input choice. Canceling operation.");
-      return INPUT_ERR;
+      fprintf (stderr, "Invalid input choice. Try again.\n");
+      goto GET_DELETE_CONFIRMATION;
     }
 
   for (j = i; j < num_books - 1; j++)
@@ -735,6 +754,7 @@ edit_book (void)
   int  i;
 
   puts ("Editing book...");
+GET_ACCESSION_NUM:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -750,6 +770,12 @@ edit_book (void)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   accession_num[strcspn (accession_num, "\n")] = '\0';
 
+  if (!strcmp (accession_num, ""))
+    {
+      fprintf (stderr, "Invalid accession number. Try again.\n");
+      goto GET_ACCESSION_NUM;
+    }
+
   for (i = 0; i < num_books; i++)
     {
       if (!strcmp (accession_num, books[i].accession_num))
@@ -763,6 +789,7 @@ edit_book (void)
     }
 
   print_book (books[i]);
+GET_EDIT_CONFIRMATION:
   printf ("Do you want to continue editing? [y/n]: ");
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
@@ -771,12 +798,12 @@ edit_book (void)
   if (c == 'n')
     {
       puts ("Operation canceled.");
-      return 0;;
+      return 0;
     }
   else if (c != 'y' && c != 'n')
     {
-      puts ("Invalid input choice. Canceling operation.");
-      return INPUT_ERR;
+      fprintf (stderr, "Invalid input choice. Try again.\n");
+      goto GET_EDIT_CONFIRMATION;
     }
 
   printf ("Enter book title (%s): ", books[i].title);
@@ -790,9 +817,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.title, books[i].title, MAX_FIELD_LEN);
   else
@@ -809,9 +838,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.author, books[i].author, MAX_FIELD_LEN);
   else
@@ -828,9 +859,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.publisher, books[i].publisher, MAX_FIELD_LEN);
   else
@@ -847,9 +880,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.publication_year, books[i].publication_year, MAX_FIELD_LEN);
   else
@@ -866,15 +901,17 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.isbn, books[i].isbn, MAX_FIELD_LEN);
   else
     strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter book accession number (%s): ", books[i].accession_num);
+  printf ("Enter accession number (%s): ", books[i].accession_num);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -885,15 +922,17 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.accession_num, books[i].accession_num, MAX_FIELD_LEN);
   else
     strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
 
-  printf ("Enter genre (%s): ", books[i].genre);
+  printf ("Enter book genre (%s): ", books[i].genre);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -904,9 +943,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.genre, books[i].genre, MAX_FIELD_LEN);
   else
@@ -923,9 +964,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.checked_out_by, books[i].checked_out_by, MAX_FIELD_LEN);
   else
@@ -942,9 +985,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.checked_out_date, books[i].checked_out_date, MAX_FIELD_LEN);
   else
@@ -961,9 +1006,11 @@ edit_book (void)
           return IO_ERR;
         }
     }
+
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
   buffer[strcspn(buffer, "\n")] = '\0';
+
   if (!strcmp (buffer, ""))
     strncpy (book.return_date, books[i].return_date, MAX_FIELD_LEN);
   else
@@ -1005,6 +1052,8 @@ add_book (void)
         }
     }
 
+  puts ("Adding book..");
+GET_BOOK_TITLE:
   printf ("Enter book title: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1019,10 +1068,17 @@ add_book (void)
 
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.title, buffer, MAX_FIELD_LEN);
 
+  if (!strcmp (buffer, ""))
+    {
+      fprintf (stderr, "Invalid book title. Try again.\n");
+      goto GET_BOOK_TITLE;
+    }
+  else
+    strncpy (book.title, buffer, MAX_FIELD_LEN);
+
+GET_BOOK_AUTHOR:
   printf ("Enter book author: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1037,10 +1093,17 @@ add_book (void)
 
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.author, buffer, MAX_FIELD_LEN);
 
+  if (!strcmp (buffer, ""))
+    {
+      fprintf (stderr, "Invalid book author. Try again.\n");
+      goto GET_BOOK_AUTHOR;
+    }
+  else
+    strncpy (book.author, buffer, MAX_FIELD_LEN);
+
+GET_BOOK_PUBLISHER:
   printf ("Enter book publisher: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1055,10 +1118,17 @@ add_book (void)
 
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.publisher, buffer, MAX_FIELD_LEN);
 
+  if (!strcmp (buffer, ""))
+    {
+      fprintf (stderr, "Invalid book publisher. Try again.\n");
+      goto GET_BOOK_PUBLISHER;
+    }
+  else
+    strncpy (book.publisher, buffer, MAX_FIELD_LEN);
+
+GET_PUBLICATION_YEAR:
   printf ("Enter publication year: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1073,10 +1143,17 @@ add_book (void)
 
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.publication_year, buffer, MAX_FIELD_LEN);
 
+  if (!strcmp (buffer, ""))
+    {
+      fprintf (stderr, "Invalid publication year. Try again.\n");
+      goto GET_PUBLICATION_YEAR;
+    }
+  else
+    strncpy (book.publication_year, buffer, MAX_FIELD_LEN);
+
+GET_BOOK_ISBN:
   printf ("Enter book ISBN: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1091,12 +1168,18 @@ add_book (void)
 
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
-access_num_not_unique:
-  printf ("Enter book accession number (%d): ", num_books + 1);
+  if (!strcmp (buffer, ""))
+    {
+      fprintf (stderr, "Invalid ISBN. Try again.\n");
+      goto GET_BOOK_ISBN;
+    }
+  else
+    strncpy (book.isbn, buffer, MAX_FIELD_LEN);
+
+GET_ACCESSION_NUM:
+  printf ("Enter accession number (%d): ", num_books + 1);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
       if (feof (stdin))
@@ -1124,12 +1207,13 @@ access_num_not_unique:
           if (!strcmp (buffer, books[i].accession_num))
             {
               fprintf (stderr, "Error: The entered accession number is not unique.\n");
-              goto access_num_not_unique;
+              goto GET_ACCESSION_NUM;
             }
         }
     }
   strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
 
+GET_BOOK_GENRE:
   printf ("Enter book genre: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1144,9 +1228,15 @@ access_num_not_unique:
 
   if (strchr (buffer, '\n') == NULL)
     while ((d = getchar ()) != '\n' && d != EOF) {}
-
   buffer[strcspn(buffer, "\n")] = '\0';
-  strncpy (book.genre, buffer, MAX_FIELD_LEN);
+
+  if (!strcmp (buffer, ""))
+    {
+      fprintf (stderr, "Invalid book genre. Try again.\n");
+      goto GET_BOOK_GENRE;
+    }
+  else
+    strncpy (book.genre, buffer, MAX_FIELD_LEN);
 
   strncpy (book.checked_out_by, "", MAX_FIELD_LEN - 1);
   strncpy (book.checked_out_date, "", MAX_FIELD_LEN - 1);
@@ -1482,9 +1572,18 @@ main (void)
       else
         continue;
     }
-  system ("tput clear");
-  print_info ();
 
+  if (system ("clear") != 0)
+    {
+      if (system ("cls") != 0)
+        {
+          fprintf (stderr, "Warning: Failed to clear terminal screen.\n");
+          for (int i = 0; i < 50; i++)
+            putchar ('\n');
+        }
+    }
+
+  print_info ();
   num_books = load_catalog ();
   if (num_books < 0)
     goto failure;
@@ -1495,7 +1594,10 @@ main (void)
 
       printf (">>> ");
       if (scanf (" %c", &c) == EOF)
-        goto success;
+        {
+          save_catalog ();
+          goto success;
+        }
       while ((d = getchar ()) != '\n' && d != EOF) {}
 
       switch (c)
@@ -1529,6 +1631,7 @@ main (void)
           break;
 
         case 'q':
+          save_catalog ();
           goto success;
 
         case 'r':
@@ -1550,27 +1653,28 @@ main (void)
           continue;
 
         case EOF_ERR:
+          save_catalog ();
           goto success;
 
         case INPUT_ERR:
           continue;
 
         case IO_ERR:
+          save_catalog ();
           goto failure;
 
         default:
-          fprintf (stderr, "Unexpected status code.\n");
+          fprintf (stderr, "Error: Unexpected status code.\n");
           continue;
         }
     }
 
+success:
+  free (books);
+  return EXIT_SUCCESS;
+
 failure:
   free (books);
   return EXIT_FAILURE;
-
-success:
-  save_catalog ();
-  free (books);
-  return EXIT_SUCCESS;
 }
 
