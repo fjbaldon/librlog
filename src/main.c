@@ -1523,17 +1523,16 @@ load_catalog (void)
 
 /* Function: verify_user
  * ---------------------
- * Verify the user's identity.
+ * Verify the user's identity by comparing the entered password with a stored password.
  *
- * This function prompts the user to enter a password
- * and compares it to a stored password.
- * If the passwords match, the function returns successfully.
- * Otherwise, the function returns an error code.
+ * This function prompts the user to enter a password and compares it to a stored password.
+ * If the passwords match, the function returns successfully with a value of 1.
+ * Otherwise, the function prompts the user to enter the password again until a match is found or an error occurs.
  *
  * returns: An integer indicating the success of the function.
- * If the entered password matches the stored password,
- * the function returns successfully.
- * Otherwise, it returns an error code.
+ * If the entered password matches the stored password, the function returns successfully with a value of 1.
+ * If there is an error reading input from stdin, the function returns an error code of IO_ERR.
+ * If the end of the input stream is reached, the function returns an error code of EOF_ERR.
  */
 static int
 verify_user (void)
@@ -1669,7 +1668,7 @@ main (void)
           break;
 
         default:
-          fprintf (stderr, "Invalid input. Type 'h' for help.\n");
+          puts ("Invalid input. Type 'h' for help.");
           continue;
         }
 
@@ -1697,7 +1696,7 @@ quit:
   else
     {
       if (save_catalog () != 0)
-        fprintf (stderr, "Warning: Failed to save catalog to file \"%s\".\n", FILE_NAME);
+        fprintf (stderr, "Warning: Failed to save catalog to file \"%s\"\n", FILE_NAME);
       free (books);
       return EXIT_SUCCESS;
     }
