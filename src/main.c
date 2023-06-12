@@ -30,8 +30,7 @@
 #define MAX_FIELD_LEN 256
 #define MAX_NUM_FIELDS 10
 #define EOF_ERR -1
-#define INPUT_ERR -2
-#define IO_ERR -3
+#define IO_ERR -2
 
 /* A struct representing a book in a library. */
 typedef struct
@@ -70,17 +69,17 @@ static Book *books;
  * `load_catalog`, `add_book`, `delete_book`, `borrow_book`,
  * and `return_book` functions.
  */
-static int   num_books;
+static int num_books;
 
 /* Variable: max_books
  * -------------------
- * An integer indicating the maximum number of books that the library can hold.
+ * An unsigned integer indicating the maximum number of books that the library can hold.
  *
  * This variable is used to set the initial capacity of the `books` array.
  * It is initialized to a default value at startup and will be updated
  * automatically if the library needs to hold more books.
  */
-static int   max_books;
+static size_t max_books;
 
 /* Variable: d
  * -----------
@@ -215,18 +214,21 @@ find_books (void)
   int num_books_found, i;
 
   puts ("Finding books..");
-  puts ("  a - author");
-  puts ("  b - go back");
-  puts ("  g - genre");
-  puts ("  p - publisher");
-  puts ("  t - title");
-  puts ("  y - publication year");
-  printf ("> ");
+
+get_book_field:
+  puts (" a - author");
+  puts (" b - back");
+  puts (" g - genre");
+  puts (" p - publisher");
+  puts (" t - title");
+  puts (" y - publication year");
+  printf (">> ");
 
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
   while ((d = getchar ()) != '\n' && d != EOF) {}
 
+  num_books_found = 0;
   switch (c)
     {
     case 'a':
@@ -237,14 +239,13 @@ find_books (void)
             return EOF_ERR;
           else
             {
-              fprintf (stderr, "Error reading from stdin.\n");
+              fprintf (stderr, "Error: Failed to read input from stdin.\n");
               return IO_ERR;
             }
         }
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
           for (i = 0; i < num_books; i++)
@@ -277,14 +278,13 @@ find_books (void)
             return EOF_ERR;
           else
             {
-              fprintf (stderr, "Error reading from stdin.\n");
+              fprintf (stderr, "Error: Failed to read input from stdin.\n");
               return IO_ERR;
             }
         }
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
           for (i = 0; i < num_books; i++)
@@ -314,14 +314,13 @@ find_books (void)
             return EOF_ERR;
           else
             {
-              fprintf (stderr, "Error reading from stdin.\n");
+              fprintf (stderr, "Error: Failed to read input from stdin.\n");
               return IO_ERR;
             }
         }
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
           for (i = 0; i < num_books; i++)
@@ -351,14 +350,13 @@ find_books (void)
             return EOF_ERR;
           else
             {
-              fprintf (stderr, "Error reading from stdin.\n");
+              fprintf (stderr, "Error: Failed to read input from stdin.\n");
               return IO_ERR;
             }
         }
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
           for (i = 0; i < num_books; i++)
@@ -388,14 +386,13 @@ find_books (void)
             return EOF_ERR;
           else
             {
-              fprintf (stderr, "Error reading from stdin.\n");
+              fprintf (stderr, "Error: Failed to read input from stdin.\n");
               return IO_ERR;
             }
         }
       if (strchr (buffer, '\n') == NULL)
         while ((d = getchar ()) != '\n' && d != EOF) {}
       buffer[strcspn(buffer, "\n")] = '\0';
-      num_books_found = 0;
       if (!strcmp (buffer, ""))
         {
           for (i = 0; i < num_books; i++)
@@ -418,8 +415,8 @@ find_books (void)
       break;
 
     default:
-      fprintf (stderr, "Error invalid input choice.\n");
-      return INPUT_ERR;
+      puts ("Invalid input. Try again.");
+      goto get_book_field;
     }
 
   putchar ('\n');
@@ -456,7 +453,8 @@ return_book (void)
   int i;
 
   puts ("Returning book..");
-GET_ACCESSION_NUM:
+
+get_accession_num:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -464,7 +462,7 @@ GET_ACCESSION_NUM:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -475,8 +473,8 @@ GET_ACCESSION_NUM:
 
   if (!strcmp (accession_num, ""))
     {
-      fprintf (stderr, "Invalid accession number. Try again.\n");
-      goto GET_ACCESSION_NUM;
+      puts ("Invalid accession number. Try again.");
+      goto get_accession_num;
     }
 
   for (i = 0; i < num_books; i++)
@@ -505,7 +503,7 @@ GET_ACCESSION_NUM:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -522,7 +520,7 @@ GET_ACCESSION_NUM:
   strncpy (books[i].checked_out_by, "", MAX_FIELD_LEN - 1);
   strncpy (books[i].checked_out_date, "", MAX_FIELD_LEN - 1);
 
-  printf ("Book %s has been returned on %s.\n", books[i].title, books[i].return_date);
+  printf ("%s has been returned on %s.\n", books[i].title, books[i].return_date);
   return 0;
 }
 
@@ -552,7 +550,8 @@ borrow_book (void)
   char checked_out_date[MAX_FIELD_LEN];
 
   puts ("Borrowing book..");
-GET_ACCESSION_NUM:
+
+get_accession_num:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) ==  NULL)
     {
@@ -560,7 +559,7 @@ GET_ACCESSION_NUM:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -571,8 +570,8 @@ GET_ACCESSION_NUM:
 
   if (!strcmp (accession_num, ""))
     {
-      fprintf (stderr, "Invalid accession number. Try again.\n");
-      goto GET_ACCESSION_NUM;
+      puts ("Invalid accession number. Try again.");
+      goto get_accession_num;
     }
 
   for (i = 0; i < num_books; i++)
@@ -593,7 +592,7 @@ GET_ACCESSION_NUM:
       return 0;
     }
 
-checked_out_by_invalid:
+get_checked_out_by:
   printf ("Enter borrower's name: ");
   if (fgets (checked_out_by, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -601,7 +600,7 @@ checked_out_by_invalid:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -612,8 +611,8 @@ checked_out_by_invalid:
 
   if (!strcmp (checked_out_by, ""))
     {
-      fprintf (stderr, "Invalid name. Try again.\n");
-      goto checked_out_by_invalid;
+      puts ("Invalid name. Try again.");
+      goto get_checked_out_by;
     }
   else
     strncpy (books[i].checked_out_by, checked_out_by, MAX_FIELD_LEN);
@@ -626,7 +625,7 @@ checked_out_by_invalid:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -640,7 +639,7 @@ checked_out_by_invalid:
   else
     strncpy (books[i].checked_out_date, checked_out_date, MAX_FIELD_LEN);
 
-  printf ("Book %s has been borrowed on %s.\n", books[i].title, books[i].checked_out_date);
+  printf ("%s has been borrowed on %s.\n", books[i].title, books[i].checked_out_date);
   return 0;
 }
 
@@ -667,7 +666,8 @@ delete_book (void)
   int i, j;
 
   puts ("Deleting book..");
-GET_ACCESSION_NUM:
+
+get_accession_num:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -675,7 +675,7 @@ GET_ACCESSION_NUM:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -686,8 +686,8 @@ GET_ACCESSION_NUM:
 
   if (!strcmp (accession_num, ""))
     {
-      fprintf (stderr, "Invalid accession number. Try again.\n");
-      goto GET_ACCESSION_NUM;
+      puts ("Invalid accession number. Try again.");
+      goto get_accession_num;
     }
 
   for (i = 0; i < num_books; i++)
@@ -703,7 +703,8 @@ GET_ACCESSION_NUM:
     }
 
   print_book (books[i]);
-GET_DELETE_CONFIRMATION:
+
+get_del_confirmation:
   printf ("Are you sure you want to delete this book? [y/n]: ");
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
@@ -716,8 +717,8 @@ GET_DELETE_CONFIRMATION:
     }
   else if (c != 'y' && c != 'n')
     {
-      fprintf (stderr, "Invalid input choice. Try again.\n");
-      goto GET_DELETE_CONFIRMATION;
+      puts ("Invalid input choice. Try again.");
+      goto get_del_confirmation;
     }
 
   for (j = i; j < num_books - 1; j++)
@@ -753,8 +754,9 @@ edit_book (void)
   Book book;
   int  i;
 
-  puts ("Editing book...");
-GET_ACCESSION_NUM:
+  puts ("Editing book..");
+
+get_accession_num:
   printf ("Enter accession number: ");
   if (fgets (accession_num, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -762,7 +764,7 @@ GET_ACCESSION_NUM:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -772,8 +774,8 @@ GET_ACCESSION_NUM:
 
   if (!strcmp (accession_num, ""))
     {
-      fprintf (stderr, "Invalid accession number. Try again.\n");
-      goto GET_ACCESSION_NUM;
+      puts ("Invalid accession number. Try again.");
+      goto get_accession_num;
     }
 
   for (i = 0; i < num_books; i++)
@@ -789,7 +791,8 @@ GET_ACCESSION_NUM:
     }
 
   print_book (books[i]);
-GET_EDIT_CONFIRMATION:
+
+get_edit_confirmation:
   printf ("Do you want to continue editing? [y/n]: ");
   if (scanf (" %c", &c) == EOF)
     return EOF_ERR;
@@ -802,8 +805,8 @@ GET_EDIT_CONFIRMATION:
     }
   else if (c != 'y' && c != 'n')
     {
-      fprintf (stderr, "Invalid input choice. Try again.\n");
-      goto GET_EDIT_CONFIRMATION;
+      puts ("Invalid input. Try again.");
+      goto get_edit_confirmation;
     }
 
   printf ("Enter book title (%s): ", books[i].title);
@@ -813,7 +816,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -834,7 +837,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -855,7 +858,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -876,7 +879,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -897,7 +900,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -918,7 +921,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -939,7 +942,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -960,7 +963,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -981,7 +984,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1002,7 +1005,7 @@ GET_EDIT_CONFIRMATION:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1043,17 +1046,27 @@ add_book (void)
 
   if (num_books >= max_books)
     {
-      max_books += 500;
-      books = (Book *) realloc (books, sizeof (Book) * max_books);
-      if (books == NULL)
+      size_t new_max_books;
+      Book *new_books;
+
+      new_max_books =  max_books + 500;
+      new_books = (Book *) realloc (books, sizeof (Book) * new_max_books);
+
+      if (new_books == NULL)
         {
-          fprintf (stderr, "Failed to reallocate memory.\n");
+          fprintf (stderr, "Error: Failed to allocate additional memory for books.\n");
           return IO_ERR;
+        }
+      else
+        {
+          books = new_books;
+          max_books = new_max_books;
         }
     }
 
   puts ("Adding book..");
-GET_BOOK_TITLE:
+
+get_book_title:
   printf ("Enter book title: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1061,7 +1074,7 @@ GET_BOOK_TITLE:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1072,13 +1085,13 @@ GET_BOOK_TITLE:
 
   if (!strcmp (buffer, ""))
     {
-      fprintf (stderr, "Invalid book title. Try again.\n");
-      goto GET_BOOK_TITLE;
+      puts ("Invalid book title. Try again.");
+      goto get_book_title;
     }
   else
     strncpy (book.title, buffer, MAX_FIELD_LEN);
 
-GET_BOOK_AUTHOR:
+get_book_author:
   printf ("Enter book author: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1086,7 +1099,7 @@ GET_BOOK_AUTHOR:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1097,13 +1110,13 @@ GET_BOOK_AUTHOR:
 
   if (!strcmp (buffer, ""))
     {
-      fprintf (stderr, "Invalid book author. Try again.\n");
-      goto GET_BOOK_AUTHOR;
+      puts ("Invalid book author. Try again.");
+      goto get_book_author;
     }
   else
     strncpy (book.author, buffer, MAX_FIELD_LEN);
 
-GET_BOOK_PUBLISHER:
+get_book_publisher:
   printf ("Enter book publisher: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1111,7 +1124,7 @@ GET_BOOK_PUBLISHER:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1122,13 +1135,13 @@ GET_BOOK_PUBLISHER:
 
   if (!strcmp (buffer, ""))
     {
-      fprintf (stderr, "Invalid book publisher. Try again.\n");
-      goto GET_BOOK_PUBLISHER;
+      puts ("Invalid book publisher. Try again.");
+      goto get_book_publisher;
     }
   else
     strncpy (book.publisher, buffer, MAX_FIELD_LEN);
 
-GET_PUBLICATION_YEAR:
+get_publication_year:
   printf ("Enter publication year: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1136,7 +1149,7 @@ GET_PUBLICATION_YEAR:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1147,13 +1160,13 @@ GET_PUBLICATION_YEAR:
 
   if (!strcmp (buffer, ""))
     {
-      fprintf (stderr, "Invalid publication year. Try again.\n");
-      goto GET_PUBLICATION_YEAR;
+      puts ("Invalid publication year. Try again.");
+      goto get_publication_year;
     }
   else
     strncpy (book.publication_year, buffer, MAX_FIELD_LEN);
 
-GET_BOOK_ISBN:
+get_book_isbn:
   printf ("Enter book ISBN: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1161,7 +1174,7 @@ GET_BOOK_ISBN:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1172,13 +1185,13 @@ GET_BOOK_ISBN:
 
   if (!strcmp (buffer, ""))
     {
-      fprintf (stderr, "Invalid ISBN. Try again.\n");
-      goto GET_BOOK_ISBN;
+      puts ("Invalid ISBN. Try again.");
+      goto get_book_isbn;
     }
   else
     strncpy (book.isbn, buffer, MAX_FIELD_LEN);
 
-GET_ACCESSION_NUM:
+get_accession_num:
   printf ("Enter accession number (%d): ", num_books + 1);
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1186,7 +1199,7 @@ GET_ACCESSION_NUM:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1206,14 +1219,14 @@ GET_ACCESSION_NUM:
         {
           if (!strcmp (buffer, books[i].accession_num))
             {
-              fprintf (stderr, "Error: The entered accession number is not unique.\n");
-              goto GET_ACCESSION_NUM;
+              puts ("Error: The entered accession number is not unique.");
+              goto get_accession_num;
             }
         }
     }
   strncpy (book.accession_num, buffer, MAX_FIELD_LEN);
 
-GET_BOOK_GENRE:
+get_book_genre:
   printf ("Enter book genre: ");
   if (fgets (buffer, MAX_FIELD_LEN, stdin) == NULL)
     {
@@ -1221,7 +1234,7 @@ GET_BOOK_GENRE:
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1232,8 +1245,8 @@ GET_BOOK_GENRE:
 
   if (!strcmp (buffer, ""))
     {
-      fprintf (stderr, "Invalid book genre. Try again.\n");
-      goto GET_BOOK_GENRE;
+      puts ("Invalid book genre. Try again.");
+      goto get_book_genre;
     }
   else
     strncpy (book.genre, buffer, MAX_FIELD_LEN);
@@ -1282,7 +1295,7 @@ save_catalog (void)
   fp = fopen (FILE_NAME, "w");
   if (fp == NULL)
     {
-      fprintf (stderr, "Error saving catalog.\n");
+      fprintf (stderr, "Error: Failed to open file \"%s\" for writing.\n", FILE_NAME);
       return IO_ERR;
     }
 
@@ -1303,7 +1316,12 @@ save_catalog (void)
               books[i].return_date);
     }
 
-  fclose(fp);
+  if (fclose (fp) != 0)
+    {
+      fprintf (stderr, "Error: Failed to close file \"%s\".\n", FILE_NAME);
+      return IO_ERR;
+    }
+
   return 0;
 }
 
@@ -1380,22 +1398,33 @@ load_catalog (void)
   if (fp == NULL)
     {
       fp = fopen (FILE_NAME, "w");
+
       if (fp == NULL)
         {
-          fprintf (stderr, "Error creating new catalog. Quitting..\n");
+          fprintf (stderr, "Error: Failed to create new catalog file \"%s\".\n", FILE_NAME);
           return IO_ERR;
         }
+
       fprintf (fp, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n");
-      fclose (fp);
+
+      if (fclose (fp) != 0)
+        {
+          fprintf (stderr, "Error: Failed to close newly created catalog file \"%s\".\n", FILE_NAME);
+          return IO_ERR;
+        }
+
       if ((fp = fopen (FILE_NAME, "r")) == NULL)
-        fprintf (stderr, "Error reading newly created catalog. Quitting..\n");
+        {
+          fprintf (stderr, "Error: Failed to open newly created catalog file \"%s\" for reading.\n", FILE_NAME);
+          return IO_ERR;
+        }
     }
 
   if (fgets (line, MAX_LINE_LEN, fp) != NULL)
     {
       if (strcmp (line, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date\n"))
         {
-          fprintf (stderr, "Error invalid  header. Quitting..\n");
+          fprintf (stderr, "Error: Invalid header in file \"%s\". Expected \"%s\" but found \"%s\".\n", FILE_NAME, "Title,Author,Publisher,Publication Year,ISBN,Accession Number,Genre,Checked Out By,Checked Out Date,Return Date", line);
           return IO_ERR;
         }
     }
@@ -1478,12 +1507,17 @@ load_catalog (void)
 
   if (ferror (fp))
     {
-      fprintf (stderr, "Error parsing file.\n");
+      fprintf (stderr, "Error: Failed to read from file \"%s\".\n", FILE_NAME);
       fclose (fp);
       return IO_ERR;
     }
 
-  fclose (fp);
+  if (fclose (fp) != 0)
+    {
+      fprintf (stderr, "Error: Failed to close file \"%s\".\n", FILE_NAME);
+      return IO_ERR;
+    }
+
   return num_books;
 }
 
@@ -1507,6 +1541,7 @@ verify_user (void)
   const char stored_pass[] = "bisu";
   char entered_pass[MAX_LINE_LEN];
 
+get_password:
   printf ("Enter password: ");
   if (fgets (entered_pass, MAX_LINE_LEN, stdin) == NULL)
     {
@@ -1514,7 +1549,7 @@ verify_user (void)
         return EOF_ERR;
       else
         {
-          fprintf (stderr, "Error reading from stdin.\n");
+          fprintf (stderr, "Error: Failed to read input from stdin.\n");
           return IO_ERR;
         }
     }
@@ -1524,11 +1559,13 @@ verify_user (void)
 
   entered_pass[strcspn (entered_pass, "\n")] = '\0';
 
-  if (!strcmp (stored_pass, entered_pass))
-    return 1;
+  if (strcmp (stored_pass, entered_pass))
+    {
+      puts ("Sorry, try again.");
+      goto get_password;
+    }
 
-  puts ("Sorry, try again.");
-  return 0;
+  return 1;
 }
 
 /* Function: main
@@ -1551,6 +1588,7 @@ int
 main (void)
 {
   char c;
+  int status;
 
   max_books = 1000;
   books = (Book *) malloc (sizeof (Book) * max_books);
@@ -1560,18 +1598,9 @@ main (void)
       return EXIT_FAILURE;
     }
 
-  while (1)
-    {
-      int is_verified;
-
-      is_verified = verify_user ();
-      if (is_verified == 1)
-        break;
-      else if (is_verified < 0)
-        goto failure;
-      else
-        continue;
-    }
+  status = verify_user ();
+  if (status < 0)
+    goto quit;
 
   if (system ("clear") != 0)
     {
@@ -1586,18 +1615,16 @@ main (void)
   print_info ();
   num_books = load_catalog ();
   if (num_books < 0)
-    goto failure;
+    {
+      status = num_books;
+      goto quit;
+    }
 
   while (1)
     {
-      int status;
-
       printf (">>> ");
       if (scanf (" %c", &c) == EOF)
-        {
-          save_catalog ();
-          goto success;
-        }
+        goto quit;
       while ((d = getchar ()) != '\n' && d != EOF) {}
 
       switch (c)
@@ -1631,8 +1658,7 @@ main (void)
           break;
 
         case 'q':
-          save_catalog ();
-          goto success;
+          goto quit;
 
         case 'r':
           status = return_book ();
@@ -1653,15 +1679,8 @@ main (void)
           continue;
 
         case EOF_ERR:
-          save_catalog ();
-          goto success;
-
-        case INPUT_ERR:
-          continue;
-
         case IO_ERR:
-          save_catalog ();
-          goto failure;
+          goto quit;
 
         default:
           fprintf (stderr, "Error: Unexpected status code.\n");
@@ -1669,12 +1688,18 @@ main (void)
         }
     }
 
-success:
-  free (books);
-  return EXIT_SUCCESS;
-
-failure:
-  free (books);
-  return EXIT_FAILURE;
+quit:
+  if (status < 0)
+    {
+      free (books);
+      return EXIT_FAILURE;
+    }
+  else
+    {
+      if (save_catalog () != 0)
+        fprintf (stderr, "Warning: Failed to save catalog to file \"%s\".\n", FILE_NAME);
+      free (books);
+      return EXIT_SUCCESS;
+    }
 }
 
