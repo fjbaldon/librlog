@@ -92,20 +92,20 @@ static size_t max_books;
  */
 static int   d;
 
-static int  verify_user                     (void);
-static int  print_info                      (void);
-static int  load_catalog                    (void);
-static int  print_help                      (void);
-static int  save_catalog                    (void);
-static int  add_book                        (void);
-static int  edit_book                       (void);
-static int  delete_book                     (void);
-static int  borrow_book                     (void);
-static int  return_book                     (void);
-static int  find_books                      (void);
-static int  list_books                      (void);
-static int  print_warranty                  (void);
-static int  print_book                      (const Book book);
+static int   verify_user                     (void);
+static int   print_info                      (void);
+static int   load_catalog                    (void);
+static void  print_help                      (void);
+static int   save_catalog                    (void);
+static int   add_book                        (void);
+static int   edit_book                       (void);
+static int   delete_book                     (void);
+static int   borrow_book                     (void);
+static int   return_book                     (void);
+static int   find_books                      (void);
+static int   list_books                      (void);
+static void  print_warranty                  (void);
+static int   print_book                      (const Book book);
 
 /* Function: print_book
  * --------------------
