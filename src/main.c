@@ -93,7 +93,7 @@ static size_t max_books;
 static int   d;
 
 static int   verify_user                     (void);
-static int   print_info                      (void);
+static void  print_info                      (void);
 static int   load_catalog                    (void);
 static void  print_help                      (void);
 static int   save_catalog                    (void);
@@ -138,7 +138,7 @@ print_book (const Book book)
  *
  * returns: An integer indicating the success of the function (always 0).
  */
-static int
+static void
 print_warranty (void)
 {
   puts ("");
@@ -161,8 +161,6 @@ print_warranty (void)
   puts ("    The Free Software Foundation, Inc.");
   puts ("    51 Franklin Street, Fifth Floor");
   puts ("    Boston, MA 02110-1335  USA\n");
-
-  return 0;
 }
 
 /* Function: list_books
@@ -1335,7 +1333,7 @@ save_catalog (void)
  * returns: An integer indicating the success of the function.
  * In this case, the function always returns successfully.
  */
-static int
+static void
 print_help (void)
 {
   puts (" a - add book");
@@ -1348,8 +1346,6 @@ print_help (void)
   puts (" q - quit program");
   puts (" r - return book");
   puts (" w - show program warranty");
-
-  return 0;
 }
 
 /* Function: print_info
@@ -1362,15 +1358,13 @@ print_help (void)
  * returns: An integer indicating the success of the function.
  * In this case, the function always returns successfully.
  */
-static int
+static void
 print_info (void)
 {
   puts (PROG_VER);
   puts ("Copyright 2023 Francis John Baldon");
   puts ("This is free software with ABSOLUTELY NO WARRANTY.");
   puts ("For help type 'h'.");
-
-  return 0;
 }
 
 /* Function: load_catalog
