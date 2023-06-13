@@ -1649,7 +1649,7 @@ main (void)
           break;
 
         case 'h':
-          status = print_help ();
+          print_help ();
           break;
 
         case 'l':
@@ -1664,7 +1664,7 @@ main (void)
           break;
 
         case 'w':
-          status = print_warranty ();
+          print_warranty ();
           break;
 
         default:
