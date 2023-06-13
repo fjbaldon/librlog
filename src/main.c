@@ -1668,16 +1668,9 @@ main (void)
 
       switch (status)
         {
-        case 0:
-          continue;
-
         case EOF_ERR:
         case IO_ERR:
           goto quit;
-
-        default:
-          fprintf (stderr, "Error: Unexpected status code.\n");
-          continue;
         }
     }
 
